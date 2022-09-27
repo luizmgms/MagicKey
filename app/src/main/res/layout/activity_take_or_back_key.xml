@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TakeOrBackKeyActivity"
+    android:id="@+id/coordinatorTakeOrBackKeyId">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/yoursKeysAppBarLayoutId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.PopupOverlay"/>
+
+    <!-- include main content -->
+    <include layout="@layout/content_yours_keys" />
+
+    <!--include bottonsheet -->
+    <include layout="@layout/bottom_sheet_other_keys" />
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

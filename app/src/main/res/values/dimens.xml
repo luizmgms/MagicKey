@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_size_enter_id">48sp</dimen>
+    <dimen name="margin_text_enter_id">4dp</dimen>
+    <dimen name="text_size_input_id">50sp</dimen>
+    <dimen name="margin_input_enter_id">8dp</dimen>
+    <dimen name="padd_number_buttons">4dp</dimen>
+    <dimen name="size_number">80sp</dimen>
+    <dimen name="size_ok">60sp</dimen>
+    <dimen name="size_clear">40sp</dimen>
+    <dimen name="margin_button">4dp</dimen>
+    <dimen name="pad_btn">16dp</dimen>
+    <dimen name="marg_btn">8dp</dimen>
+    <dimen name="pad_main">16dp</dimen>
+    <dimen name="tam_titles">50sp</dimen>
+    <dimen name="tam_subtitles">30sp</dimen>
+    <dimen name="tam_topics">30sp</dimen>
+    <dimen name="margin_subtitle_topic">32dp</dimen>
+    <dimen name="tam_name_key_entry">24sp</dimen>
+    <dimen name="tam_name_user_entry">20sp</dimen>
+    <dimen name="marg_text">8dp</dimen>
+    <dimen name="peek_height_yk">96dp</dimen>
+    <dimen name="tam_title_restrict">25sp</dimen>
+    <dimen name="title_add">24sp</dimen>
+    <dimen name="height_spinner">50dp</dimen>
+    <dimen name="margin_spinner">8dp</dimen>
+    <dimen name="pad_spinner">8dp</dimen>
+</resources>

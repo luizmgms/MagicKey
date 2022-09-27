@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/green_background_color_entry_key"
+    android:padding="@dimen/pad_main"
+    android:id="@+id/backgroundItemListEntryId">
+
+    <TextView
+        android:id="@+id/nameOfKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/name_key"
+        android:textStyle="bold"
+        android:textSize="@dimen/tam_name_key_entry"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/nameOfUserTakedKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/name_user_taked"
+        android:textColor="@color/black"
+        android:layout_marginEnd="@dimen/marg_text"
+        android:textSize="@dimen/tam_name_user_entry"
+        app:layout_constraintTop_toBottomOf="@id/nameOfKeyId"
+        app:layout_constraintStart_toStartOf="@id/nameOfKeyId" />
+
+    <TextView
+        android:id="@+id/dateTimeTakedKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/taked"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="@id/nameOfUserTakedKeyId"
+        app:layout_constraintTop_toBottomOf="@id/nameOfUserTakedKeyId" />
+
+    <TextView
+        android:id="@+id/nameOfUserBackedKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/name_user_backed"
+        android:layout_marginEnd="@dimen/marg_text"
+        android:textSize="@dimen/tam_name_user_entry"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/dateTimeTakedKeyId"
+        app:layout_constraintStart_toStartOf="@id/nameOfKeyId" />
+
+    <TextView
+        android:id="@+id/dateTimeBackedKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/backed"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="@id/nameOfUserBackedKeyId"
+        app:layout_constraintTop_toBottomOf="@id/nameOfUserBackedKeyId" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/layoutBottomSheetYoursKeysId"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="@dimen/peek_height_yk"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/textOtherKeyId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/purple_500"
+        android:gravity="center"
+        android:paddingBottom="20dp"
+        android:text="@string/take_back_other_key"
+        android:textColor="@color/white"
+        android:textSize="@dimen/tam_subtitles"
+        android:textStyle="bold"
+        app:drawableTopCompat="@drawable/ic_expand"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/etSearchKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/search"
+        android:layout_margin="16dp"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textOtherKeyId"
+        android:autofillHints=""
+        android:inputType="textAutoComplete" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchFilterId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="48dp"
+        android:padding="16dp"
+        android:scaleX="1.5"
+        android:scaleY="1.5"
+        android:text="@string/sec"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textOtherKeyId" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listOthersKeysId"
+        tools:listitem="@layout/layout_item_list_keys"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/switchFilterId"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

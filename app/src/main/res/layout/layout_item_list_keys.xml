@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:padding="16dp"
+    android:id="@+id/layoutBackgroudItemListKeyId">
+
+    <TextView
+        android:id="@+id/nameOfKeyId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:text="@string/name_key"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnTakeOrBackId"/>
+
+    <TextView
+        android:id="@+id/deptOfKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dept_of_key"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nameOfKeyId"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/borId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/borrowed"
+        android:textSize="16sp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="8dp"
+        app:layout_constraintTop_toBottomOf="@id/nameOfKeyId"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/deptOfKeyId"/>
+
+    <Button
+        android:id="@+id/btnTakeOrBackId"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="@string/borrowed_key"
+        android:layout_margin="@dimen/marg_btn"
+        android:backgroundTint="@color/green"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/nameOfKeyId"
+        app:layout_constraintBottom_toBottomOf="@id/deptOfKeyId"
+        app:layout_constraintStart_toEndOf="@id/nameOfKeyId"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RestrictAreaActivity"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/labelId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/area_lock"
+        android:textSize="@dimen/tam_title_restrict"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/btnAddUserId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/cad_user"
+        android:padding="@dimen/pad_btn"
+        android:layout_margin="8dp"
+        android:drawableEnd="@drawable/ic_baseline_person_add_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelId"
+        app:layout_constraintEnd_toStartOf="@id/btnListUsersId"/>
+
+    <Button
+        android:id="@+id/btnListUsersId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/list_users"
+        android:padding="@dimen/pad_btn"
+        android:layout_marginEnd="@dimen/marg_btn"
+        android:drawableEnd="@drawable/ic_baseline_format_list_bulleted_24"
+        app:layout_constraintStart_toEndOf="@id/btnAddUserId"
+        app:layout_constraintTop_toTopOf="@id/btnAddUserId"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/btnAddKeyId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/cad_key"
+        android:layout_margin="@dimen/marg_btn"
+        android:padding="@dimen/pad_btn"
+        android:drawableEnd="@drawable/ic_baseline_vpn_key_24"
+        android:drawableTint="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnAddUserId"
+        app:layout_constraintEnd_toStartOf="@id/btnListKeysId"/>
+
+    <Button
+        android:id="@+id/btnListKeysId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/list_keys"
+        android:padding="@dimen/pad_btn"
+        android:layout_marginEnd="@dimen/marg_btn"
+        android:drawableEnd="@drawable/ic_baseline_format_list_bulleted_24"
+        app:layout_constraintStart_toEndOf="@id/btnAddKeyId"
+        app:layout_constraintTop_toTopOf="@id/btnAddKeyId"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/titleListId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_list_user"
+        android:textSize="@dimen/tam_title_restrict"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnListKeysId"/>
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/editTextSearchId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/search"
+        android:inputType="textPersonName"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        android:layout_marginEnd="@dimen/marg_btn"
+        app:layout_constraintBottom_toBottomOf="@id/titleListId"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:autofillHints="" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listItemId"
+        android:layout_width="match_parent"
+        tools:listitem="@layout/layout_item_list_users"
+        android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleListId"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

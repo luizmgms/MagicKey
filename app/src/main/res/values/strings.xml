@@ -1,0 +1,115 @@
+<resources>
+    <string name="app_name">MagicKey</string>
+    <string name="enter_id">Matrícula ou CPF</string>
+    <string name="seven">7</string>
+    <string name="eigth">8</string>
+    <string name="six">6</string>
+    <string name="five">5</string>
+    <string name="four">4</string>
+    <string name="one">1</string>
+    <string name="two">2</string>
+    <string name="three">3</string>
+    <string name="clear">Limpar</string>
+    <string name="zero">0</string>
+    <string name="ok">OK</string>
+    <string name="nine">9</string>
+    <string name="mat_empty">Entre com sua matrícula ou CPF!</string>
+    <string name="area_lock">Área Restrita</string>
+    <string name="text_pass">Inserir senha</string>
+    <string name="enter">Entrar</string>
+    <string name="pass_empty">Entre com a senha!</string>
+    <string name="in">Entrar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="add_user">addUser</string>
+    <string name="add_user_succes">Usuário Adiconado com Sucesso!</string>
+    <string name="add_user_fail">Erro ao cadastrar usuário!</string>
+    <string name="consult_user">consultUser</string>
+    <string name="mat_require">Entre com a matrícula</string>
+    <string name="name_require">Entra com o nome do usuário</string>
+    <string name="dept_require">Escolha um setor válido</string>
+    <string name="add_user_erro">Usuário já cadastrado!</string>
+    <string name="cad_user">Cadastrar Usuário</string>
+    <string name="cad_key">Cadastrar Chave</string>
+    <string name="list_users">Listar Usuários</string>
+    <string name="list_keys">Listar Chaves</string>
+    <string name="query_list_users">SELECT * FROM users</string>
+    <string name="title_list_user">Lista de Usuários</string>
+    <string name="cad_new_key">Cadastrar Nova Chave</string>
+    <string name="name_key">Nome da Chave</string>
+    <string name="name_key_require">Nome da chave requerido!</string>
+    <string name="no">NÃO</string>
+    <string name="add_key">addKey</string>
+    <string name="add_key_succes">Chave cadastrada com sucesso!</string>
+    <string name="add_key_fail">Erro ao cadastrar chave!</string>
+    <string name="add_key_erro">Chave já cadastrada!</string>
+    <string name="sector">-- Setor --</string>
+    <string name="title_list_key">Lista de Chaves</string>
+    <string name="name">Nome</string>
+    <string name="borrowed">Emprestada</string>
+    <string name="pass_invalid">Senha inválida!</string>
+    <string name="user_erro">Usuário não encontrado!</string>
+    <string name="welcome">Bem vindo(a)</string>
+    <string name="want_to_get_which_key">Vai pegar ou devolver uma chave?</string>
+    <string name="keys_of_sector">Suas Chaves:</string>
+    <string name="other_key">Outra Chave</string>
+    <string name="num_mat">123456</string>
+    <string name="dept_of_key">DEPT</string>
+    <string name="borrowed_key">Pegar</string>
+    <string name="no_bor">Não Emprestada</string>
+    <string name="take">Pegar</string>
+    <string name="back">Devolver</string>
+    <string name="erro_take_key">Erro ao tentar pegar chave!</string>
+    <string name="succes_take_key">Sucesso ao pegar chave</string>
+    <string name="erro_back_key">Erro ao tentar devolver chave!</string>
+    <string name="tilte_confirm_take_key">Pegar chave?</string>
+    <string name="subtitle_confirm_take_key">Tem certeza que quer pegar a chave</string>
+    <string name="tilte_confirm_back_key">Devolver Chave?</string>
+    <string name="subtitle_confirm_back_key">Tem certeza que quer devolver a chave</string>
+    <string name="succes_back_key">Sucesso ao devolver a chave!</string>
+    <string name="listOfBor">Lista de Empréstimos</string>
+    <string name="in_out">Entregas e Devoluções</string>
+    <string name="name_user_taked">Entregue a Nome do Usuário</string>
+    <string name="name_user_backed">Devolvida por Nome do Usuário</string>
+    <string name="taked">Dia 00/00/00 às 00:00</string>
+    <string name="date">00/00/0000</string>
+    <string name="time">00:00:00</string>
+    <string name="backed">Dia 00/00/00 às 00:00</string>
+    <string name="take_key">Pegar Chave</string>
+    <string name="list_keys_empty_show">Você não pegou chaves \uD83D\uDE10\nToque no botão \"Pegar/Devolver Outra Chave\".</string>
+    <string name="share_report">Compartilhar Relatório</string>
+    <string name="share_with">Compartilhar com…</string>
+    <string name="sec">Setor</string>
+    <string name="name_of_user">Nome do Usuário</string>
+    <string name="register">12344567</string>
+    <string name="dept_of_user">Setor</string>
+    <string name="filter_of">Filtrar por:</string>
+    <string name="pattern_date">00/00/0000</string>
+    <string name="filter">Filtrar</string>
+    <string name="search">Pesquisar </string>
+    <string name="take_back_other_key">Pegar/Devolver Outra Chave</string>
+    <string name="search_user">Procurando usuário...</string>
+    <string name="img_of_key">Mão segurando uma chave pelo chaveiro com a ponta dos dedos polegar e indicador</string>
+    <string name="button_enter_back_key">Entrar nas chaves do usuário</string>
+    <string name="add_new_user">Cadastrar Novo Usuário</string>
+    <string name="cad">Cadastrar</string>
+    <string name="erro_delete_user">Erro ao tentar excluir usuário!</string>
+    <string name="user_deleted">Usuário excluído!</string>
+    <string name="erro_delete_key">Erro ao tentar deletar Chave!</string>
+    <string name="key_deleted">Chave excluída!</string>
+    <string name="pass">senha</string>
+    <string-array name="depts_array">
+        <item>-- Setor --</item>
+        <item>CTI</item>
+        <item>DAP</item>
+        <item>COBIB</item>
+        <item>DG_PAULIST</item>
+        <item>COCF</item>
+        <item>DENS</item>
+        <item>COSAU</item>
+    </string-array>
+    <string-array name="filter">
+        <item>Dia</item>
+        <item>Mês</item>
+        <item>Ano</item>
+    </string-array>
+</resources>

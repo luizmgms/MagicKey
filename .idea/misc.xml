@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/drawable/ic_checklist.xml" value="0.5625" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/drawable/ic_expand.xml" value="0.5625" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/drawable/ic_launcher_background.xml" value="0.5625" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/drawable/ic_lock.xml" value="0.4140625" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/activity_add_key.xml" value="0.3890625" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/activity_add_user.xml" value="0.3" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/activity_borrowed_key.xml" value="0.25" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/activity_gerar_pdf.xml" value="0.53828125" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/activity_main.xml" value="0.35885416666666664" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/activity_resctrict_area.xml" value="0.5" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/activity_take_or_back_key.xml" value="0.3015625" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/bottom_sheet.xml" value="0.53828125" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/bottom_sheet_main.xml" value="0.46403712296983757" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/bottom_sheet_other_keys.xml" value="0.46403712296983757" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/content_main.xml" value="0.4784688995215311" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/content_yours_keys.xml" value="0.4914004914004914" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/gerar_layout.xml" value="0.53828125" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/layout_add_key.xml" value="0.5" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/layout_add_user.xml" value="0.53828125" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/layout_item_list_entry.xml" value="0.53828125" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/layout_item_list_keys.xml" value="0.3578125" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/layout_item_list_users.xml" value="0.3921875" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/layout_lock.xml" value="0.38984375" />
+        <entry key="..\:/Users/3143266/AndroidStudioProjects/MagicKey/app/src/main/res/layout/progress_bar.xml" value="0.53828125" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.3921875" />
+      </ProjectState>
+    </option>
+  </component>
+</project>

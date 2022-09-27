@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/layoutBottomSheetId"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="0dp"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/titleId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/in_out"
+        android:textColor="@color/black"
+        android:textSize="@dimen/tam_subtitles"
+        android:gravity="center"
+        android:layout_margin="@dimen/marg_btn"
+        android:padding="@dimen/pad_main"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/iconFilterId"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnShareReportId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        app:tint="@android:color/white"
+        android:backgroundTint="@color/color_fab"
+        app:borderWidth="0dp"
+        android:elevation="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="@dimen/marg_btn"
+        android:src="@drawable/ic_save"
+        android:contentDescription="@string/share_report" />
+
+    <ImageView
+        android:id="@+id/iconFilterId"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_baseline_filter_alt_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleId"
+        app:layout_constraintBottom_toTopOf="@id/listEntryId"
+        android:contentDescription="@string/filter_of" />
+
+    <TextView
+        android:id="@+id/labelFilterId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/filter_of"
+        android:textColor="@color/black"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/iconFilterId"
+        app:layout_constraintTop_toTopOf="@id/iconFilterId"
+        app:layout_constraintBottom_toBottomOf="@id/iconFilterId"/>
+
+    <Spinner
+        android:id="@+id/spinnerFilterId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/labelFilterId"
+        app:layout_constraintTop_toTopOf="@id/labelFilterId"
+        app:layout_constraintBottom_toBottomOf="@id/labelFilterId"/>
+
+
+    <TextView
+        android:id="@+id/dateOfFilterId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pattern_date"
+        android:textColor="@color/black"
+        android:layout_marginStart="8dp"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@id/spinnerFilterId"
+        app:layout_constraintTop_toTopOf="@id/spinnerFilterId"
+        app:layout_constraintBottom_toBottomOf="@id/spinnerFilterId"
+        app:drawableEndCompat="@drawable/ic_baseline_arrow_drop_down_24" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listEntryId"
+        tools:listitem="@layout/layout_item_list_entry"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iconFilterId"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
