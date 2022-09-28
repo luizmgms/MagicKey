@@ -87,7 +87,7 @@
     <string name="filter">Filtrar</string>
     <string name="search">Pesquisar </string>
     <string name="take_back_other_key">Pegar/Devolver Outra Chave</string>
-    <string name="search_user">Procurando usuário...</string>
+    <string name="search_user">Procurando usuário…</string>
     <string name="img_of_key">Mão segurando uma chave pelo chaveiro com a ponta dos dedos polegar e indicador</string>
     <string name="button_enter_back_key">Entrar nas chaves do usuário</string>
     <string name="add_new_user">Cadastrar Novo Usuário</string>
@@ -97,6 +97,8 @@
     <string name="erro_delete_key">Erro ao tentar deletar Chave!</string>
     <string name="key_deleted">Chave excluída!</string>
     <string name="pass">senha</string>
+    <string name="cad_users_lot">Incluir Usuários em Lote</string>
+    <string name="cad_keys_lot">Incluir Chaves em Lote</string>
     <string-array name="depts_array">
         <item>-- Setor --</item>
         <item>CTI</item>

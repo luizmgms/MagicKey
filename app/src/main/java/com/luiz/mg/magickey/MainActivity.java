@@ -1,7 +1,6 @@
 package com.luiz.mg.magickey;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,15 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Botão de Área Restrita
         FloatingActionButton floatBtnLock = findViewById(R.id.lockButtonId);
-        floatBtnLock.setOnClickListener(view -> showAlertDialogLock());
+        floatBtnLock.setOnClickListener(view -> enterAreaLock());
 
         //Layout do BottomSheet
          ConstraintLayout layoutBottomSheet = findViewById(R.id.layoutBottomSheetId);
@@ -128,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         floatBtnListOfEntries.setOnClickListener(view ->
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED));
 
-        //Botão Salvar Relatório
+        //Floating Botão Salvar Relatório
         FloatingActionButton fabSaveReport = findViewById(R.id.btnShareReportId);
         fabSaveReport.setOnClickListener(view -> {
             if (listEntry.isEmpty()) {
@@ -216,50 +210,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(i);
     }
 
-    private void showAlertDialogLock(){
+    private void enterAreaLock(){
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View inflate = inflater.inflate(R.layout.layout_lock, null);
+        Intent intent = new Intent(MainActivity.this, RestrictAreaActivity.class);
+        startActivity(intent);
 
-        //Senha
-        EditText pass = inflate.findViewById(R.id.inputPassId);
-
-        builder.setView(inflate);
-
-        builder.setPositiveButton(
-                R.string.in, (dialogInterface, i) -> enterAreaLock(pass.getText().toString()));
-        builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> { });
-
-        builder.create().show();
-
-        //Requerendo Focus e monstrando teclado do android
-        pass.requestFocus();
-        InputMethodManager imm =
-                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(pass, InputMethodManager.SHOW_IMPLICIT);
-
-        //Capturar Ação da tecla OK/Enter do teclado do android
-        pass.setOnEditorActionListener((textView, i, keyEvent) -> {
-
-            if(keyEvent != null && KeyEvent.KEYCODE_ENTER ==
-                    keyEvent.getKeyCode() || i == EditorInfo.IME_ACTION_DONE) {
-                enterAreaLock(pass.getText().toString());
-            }
-            return false;
-        });
-
-    }
-
-    private void enterAreaLock(String pass){
-        if(pass.equals("")) {
-            Toast.makeText(getApplicationContext(),R.string.pass_empty, Toast.LENGTH_LONG).show();
-        } else if (pass.equals(Utils.PASSWORD_ADMIN)){
-            Intent intent = new Intent(MainActivity.this, RestrictAreaActivity.class);
-            startActivity(intent);
-        } else {
-            Toast.makeText(getApplicationContext(),R.string.pass_invalid, Toast.LENGTH_LONG).show();
-        }
     }
 
     private void saveReport () {
@@ -326,13 +281,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:"));
         intent.putExtra(Intent.EXTRA_EMAIL, address);
+
         intent.putExtra(
                 Intent.EXTRA_SUBJECT,
                 "Relatório Movimentações de Chaves-"+ referencia);
+
         intent.putExtra(Intent.EXTRA_TEXT,
                 "Segue em anexo relatório com movimentações de chaves.\nReferência: "
-                        + referencia);
+                        + referencia+"\n\nEnviado do App MagicKey");
+
         intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+dir+fileName));
+
         startActivity(intent);
     }
 
