@@ -149,7 +149,7 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
 
     private void openActivity(View view, Entry entry) {
 
-        UserDAO userDAO = new UserDAO(view.getContext().getApplicationContext());
+        UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
         User user = userDAO.consultUser(entry.getMatUserTakeKey());
 
         if (user != null) {

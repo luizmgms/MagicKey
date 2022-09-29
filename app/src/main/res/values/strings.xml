@@ -99,6 +99,9 @@
     <string name="pass">senha</string>
     <string name="cad_users_lot">Incluir Usuários em Lote</string>
     <string name="cad_keys_lot">Incluir Chaves em Lote</string>
+    <string name="attention">Atenção!</string>
+    <string name="img_csv">Imagem contendo exemplo dos campos matrícula, Nome e Setor separados por vírgula em arquivo csv.</string>
+    <string name="pick_file">Escolher arquivo...</string>
     <string-array name="depts_array">
         <item>-- Setor --</item>
         <item>CTI</item>

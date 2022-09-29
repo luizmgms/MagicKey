@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.luiz.mg.magickey.MainActivity;
 import com.luiz.mg.magickey.R;
 import com.luiz.mg.magickey.TakeOrBackKeyActivity;
 import com.luiz.mg.magickey.dao.UserDAO;
@@ -94,7 +95,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     private void deleteUser(Context context, int pos) {
 
-        UserDAO userDAO = new UserDAO(context);
+        UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
 
         int status = userDAO.deleteUser(listUsers.get(pos).getMat());
 

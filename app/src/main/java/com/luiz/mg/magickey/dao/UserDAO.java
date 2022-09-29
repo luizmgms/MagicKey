@@ -16,8 +16,8 @@ public class UserDAO {
 
     private final FeedReaderDbHelper dbHelper;
 
-    public UserDAO(Context context) {
-        this.dbHelper = new FeedReaderDbHelper(context);
+    public UserDAO(FeedReaderDbHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     //Adicionar Usuário
@@ -150,7 +150,9 @@ public class UserDAO {
     }
 
     //Adicionar Usuários de uma Lista
-    public void addUsersOfList (ArrayList<User> list) {
+    public int addUsersOfList (ArrayList<User> list) {
+
+        int i = 0;
 
         if (!list.isEmpty()) {
             for (User user: list) {
@@ -161,12 +163,15 @@ public class UserDAO {
                 } else if (status == 1) {
                     Log.d("appkey", "Adicionar Usuário " + user.getMat() +
                             ": Sucesso!");
+                    i++;
                 } else {
                     Log.d("appkey", "Adicionar Usuário " + user.getMat() +
                             ": Erro Desconhecido!");
                 }
             }
         }
+
+        return i;
 
     }
 

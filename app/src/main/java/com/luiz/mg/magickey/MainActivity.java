@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         } else {
 
-            UserDAO userDAO = new UserDAO(getApplicationContext());
+            UserDAO userDAO = new UserDAO(dbHelper);
             User user = userDAO.consultUser(userId);
 
             if ( user == null) {

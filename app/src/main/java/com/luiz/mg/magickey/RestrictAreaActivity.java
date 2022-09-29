@@ -1,7 +1,10 @@
 package com.luiz.mg.magickey;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,9 +16,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,8 +36,11 @@ import com.luiz.mg.magickey.dao.UserDAO;
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.DialogButtonClickWrapper;
+import com.luiz.mg.magickey.utils.PathUtil;
+import com.luiz.mg.magickey.utils.ReadFile;
 import com.luiz.mg.magickey.utils.Utils;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -41,7 +52,36 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     private ArrayList<User> listUsers;
     private ArrayList<Key> listKeys;
     private boolean isUsers = true;
+    private boolean isLotUsers = true;
     private String dept = Utils.sector;
+    ActivityResultLauncher<String> mGetContent =
+        registerForActivityResult(new ActivityResultContracts.GetContent(),
+
+            uri -> {
+
+                String path="";
+                try {
+                    path = PathUtil.getPath(this, uri);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+
+                if (path != null && path.endsWith(".csv")) {
+
+                    if (isLotUsers) {
+                        //Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
+                        addUsersLot(path);
+                    }
+                    else {
+                        addKeysLot(path);
+                    }
+
+                } else {
+                    Toast.makeText(this, "Arquivo Inválido! Escolha um arquivo .csv", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +89,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         setContentView(R.layout.activity_resctrict_area);
 
         //Lista de Usuários
-        UserDAO userDAO = new UserDAO(getApplicationContext());
+        UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
         listUsers =  userDAO.listUsers();
 
         //Lista de Chaves
@@ -60,6 +100,8 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         Button btnAddKey = findViewById(R.id.btnAddKeyId);
         Button btnListUsers = findViewById(R.id.btnListUsersId);
         Button btnListKeys = findViewById(R.id.btnListKeysId);
+        Button btnAddUsersLot = findViewById(R.id.btnAddUsersLotId);
+        Button btnAddKeysLot = findViewById(R.id.btnAddKeysLotId);
 
         titleList = findViewById(R.id.titleListId);
 
@@ -74,6 +116,8 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         btnListUsers.setOnClickListener(this);
         btnListKeys.setOnClickListener(this);
         btnAddKey.setOnClickListener(this);
+        btnAddUsersLot.setOnClickListener(this);
+        btnAddKeysLot.setOnClickListener(this);
 
         SearchView etSearch = findViewById(R.id.editTextSearchId);
         etSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -136,6 +180,16 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
             case R.id.btnListKeysId:
                 isUsers = false;
                 setListKey(listKeys);
+                break;
+            case R.id.btnAddUsersLotId:
+                isLotUsers = true;
+                if (requestPermission())
+                    showDialogAddUsersLot();
+                break;
+            case R.id.btnAddKeysLotId:
+                isLotUsers = false;
+                if (requestPermission())
+                    showDialogAddKeysLot();
                 break;
         }
     }
@@ -287,7 +341,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         } else { //Todos os campos foram preenchidos
 
-            UserDAO userDAO  = new UserDAO(getApplicationContext());
+            UserDAO userDAO  = new UserDAO(MainActivity.dbHelper);
             User newUser = new User(
                     mat.getText().toString(),
                     name.getText().toString(),
@@ -394,6 +448,111 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    @SuppressLint("InflateParams")
+    private void showDialogAddUsersLot() {
+
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View inflate;
+
+        //Definição do Layout
+        inflate = inflater.inflate(R.layout.layout_add_users_lot, null);
+
+        //SetView no dialog
+        builder.setView(inflate);
+
+        //Icon
+        builder.setIcon(R.drawable.ic_baseline_attach_file_24);
+
+        //Title
+        builder.setTitle(R.string.pick_file);
+
+        //Message
+        builder.setMessage(Utils.PICK_FILE_CSV);
+
+        //Set PositiveButton
+        builder.setPositiveButton(R.string.pick_file, (dialogInterface, i) ->
+                mGetContent.launch("*/*"));
+
+        //Set NegativeButton
+        builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {});
+
+        //Criar
+        dialog = builder.create();
+
+        //Mostrar Dialog
+        dialog.show();
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void addUsersLot(String path) {
+
+        ArrayList<User> listNewUsers = ReadFile.getListUsersOfFile(path);
+
+        if (!listNewUsers.isEmpty()) {
+
+            UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
+            int numOfNewRows = userDAO.addUsersOfList(listNewUsers);
+
+            if (numOfNewRows > 0) {
+                listUsers.addAll(listNewUsers);
+                setListUser(listUsers);
+            }
+
+            Toast.makeText(this, numOfNewRows + " Usuário(s) adicionado(s)!",
+                    Toast.LENGTH_SHORT).show();
+
+        } else {
+
+            Toast.makeText(this, "Lista vazia!", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    private void addKeysLot(String path) {
+
+        ArrayList<Key> listNewKeys = ReadFile.getListOfKeysOfFile(path);
+
+        if (!listNewKeys.isEmpty()) {
+
+
+
+        } else {
+
+        }
+
+
+    }
+
+    private void showDialogAddKeysLot() {
+        //Toast.makeText(this, "Dialog Keys", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private boolean requestPermission() {
+        // Verifica  o estado da permissão de WRITE_EXTERNAL_STORAGE
+        int permissionCheck = ContextCompat
+                .checkSelfPermission(
+                        this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            // Se for diferente de PERMISSION_GRANTED, então vamos exibir a tela padrão
+            ActivityCompat
+                    .requestPermissions(
+                            this, new String[]{
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            1);
+            return false;
+
+        } else {
+
+            return true;
+        }
+
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         dept = adapterView.getItemAtPosition(i).toString();
@@ -404,4 +563,21 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         dept = Utils.sector;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            if (isLotUsers)
+                showDialogAddUsersLot();
+            else
+                showDialogAddKeysLot();
+
+        } else {
+
+            finish();
+
+        }
+    }
 }

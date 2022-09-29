@@ -69,6 +69,7 @@ public class Utils {
      public static final String ADD_KEY_SUCCESS = "Chave cadastrada com sucesso!";
      public static final String ADD_KEY_EXISTS = "Chave já cadastrada!";
      public static final String DEL = "Deletar";
+    public static final String PICK_FILE_CSV = "Você deve escolher um arquivo .csv com os campos separados por vírgula, como na imagem abaixo.";
 
 
     //Lista de todas as chaves caso precise apagar o banco de dados
