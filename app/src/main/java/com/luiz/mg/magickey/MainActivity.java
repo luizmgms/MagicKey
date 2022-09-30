@@ -31,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.luiz.mg.magickey.adapters.EntryAdapter;
 import com.luiz.mg.magickey.dao.EntryDAO;
+import com.luiz.mg.magickey.dao.KeyDAO;
 import com.luiz.mg.magickey.dao.UserDAO;
 import com.luiz.mg.magickey.db.FeedReaderDbHelper;
 import com.luiz.mg.magickey.fragments.DatePickerFragment;
@@ -73,8 +74,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         dbHelper = new FeedReaderDbHelper(getApplicationContext());
 
-        //KeyDAO keyDAO = new KeyDAO(getApplicationContext());
+        //KeyDAO keyDAO = new KeyDAO(dbHelper);
+        //keyDAO.deleteAllKeys();
         //keyDAO.addKeysOfList(Utils.getListAllKeys());
+
         //UserDAO userDAO = new UserDAO(getApplicationContext());
         //userDAO.addUsersOfList(ReadFile.getListUsersOfFile());
         //userDAO.deleteAllUsers();

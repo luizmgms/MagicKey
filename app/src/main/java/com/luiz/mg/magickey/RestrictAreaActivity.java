@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,6 +53,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     private boolean isUsers = true;
     private boolean isLotUsers = true;
     private String dept = Utils.sector;
+
     ActivityResultLauncher<String> mGetContent =
         registerForActivityResult(new ActivityResultContracts.GetContent(),
 
@@ -486,7 +486,6 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void addUsersLot(String path) {
 
         ArrayList<User> listNewUsers = ReadFile.getListUsersOfFile(path);
@@ -501,7 +500,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 setListUser(listUsers);
             }
 
-            Toast.makeText(this, numOfNewRows + " Usuário(s) adicionado(s)!",
+            Toast.makeText(this, numOfNewRows + " usuário(s) adicionado(s)!",
                     Toast.LENGTH_SHORT).show();
 
         } else {
@@ -517,17 +516,61 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         if (!listNewKeys.isEmpty()) {
 
+            KeyDAO keyDAO = new KeyDAO(MainActivity.dbHelper);
+            int numOfNewRows = keyDAO.addKeysOfList(listNewKeys);
 
+            if (numOfNewRows > 0) {
+                listKeys.addAll(listNewKeys);
+                setListKey(listKeys);
+            }
+
+            Toast.makeText(this, numOfNewRows + " chave(s) adicionada(s)!",
+                    Toast.LENGTH_SHORT).show();
 
         } else {
+
+            Toast.makeText(this, "Lista vazia!", Toast.LENGTH_SHORT).show();
 
         }
 
 
     }
 
+    @SuppressLint("InflateParams")
     private void showDialogAddKeysLot() {
-        //Toast.makeText(this, "Dialog Keys", Toast.LENGTH_SHORT).show();
+
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View inflate;
+
+        //Definição do Layout
+        inflate = inflater.inflate(R.layout.layout_add_keys_lot, null);
+
+        //SetView no dialog
+        builder.setView(inflate);
+
+        //Icon
+        builder.setIcon(R.drawable.ic_baseline_attach_file_24);
+
+        //Title
+        builder.setTitle(R.string.pick_file);
+
+        //Message
+        builder.setMessage(Utils.PICK_FILE_CSV);
+
+        //Set PositiveButton
+        builder.setPositiveButton(R.string.pick_file, (dialogInterface, i) ->
+                mGetContent.launch("*/*"));
+
+        //Set NegativeButton
+        builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {});
+
+        //Criar
+        dialog = builder.create();
+
+        //Mostrar Dialog
+        dialog.show();
 
     }
 
@@ -564,7 +607,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

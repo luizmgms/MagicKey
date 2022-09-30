@@ -54,7 +54,10 @@ public class KeyDAO {
     }
 
     //Adicionar Chaves de uma Lista
-    public void addKeysOfList(ArrayList<Key> list) {
+    public int addKeysOfList(ArrayList<Key> list) {
+
+        int i = 0;
+
         if (!list.isEmpty()) {
 
             for (Key k : list) {
@@ -65,12 +68,15 @@ public class KeyDAO {
                 } else if (status == 1) {
                     Log.d("appkey", "Adicionar Chave " + k.getNameKey() +
                             ": Sucesso!");
+                    i++;
                 } else {
                     Log.d("appkey", "Adicionar Chave " + k.getNameKey() +
                             ": Erro Desconhecido!");
                 }
             }
         }
+
+        return i;
     }
 
     //Consultar chave
@@ -142,6 +148,13 @@ public class KeyDAO {
 
     }
 
+    //Deletar todas as chaves
+    public int deleteAllKeys() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(FeedReaderContract.Feedkeys.TABLE_NAME,
+                null, null);
+    }
+
     //Lista todas as chaves
     public ArrayList<Key> listKeys (){
         ArrayList<Key> listKeys = new ArrayList<>();
@@ -184,6 +197,7 @@ public class KeyDAO {
 
     //Lista somente chaves do setor
     public ArrayList<Key> listKeys(String dept) {
+
         ArrayList<Key> listKeys = new ArrayList<>();
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -218,7 +232,6 @@ public class KeyDAO {
 
             Key key = new Key(name, sect, bor);
             listKeys.add(key);
-            //Log.d("listkey", name+"  "+dept+ " "+ bor);
 
         }
 
