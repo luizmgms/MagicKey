@@ -31,7 +31,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.luiz.mg.magickey.adapters.EntryAdapter;
 import com.luiz.mg.magickey.dao.EntryDAO;
-import com.luiz.mg.magickey.dao.KeyDAO;
 import com.luiz.mg.magickey.dao.UserDAO;
 import com.luiz.mg.magickey.db.FeedReaderDbHelper;
 import com.luiz.mg.magickey.fragments.DatePickerFragment;
@@ -82,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //userDAO.addUsersOfList(ReadFile.getListUsersOfFile());
         //userDAO.deleteAllUsers();
 
+        //entryDAO = new EntryDAO(dbHelper);
+        //entryDAO.deleteAllEntry();
+
         //Botão de Área Restrita
         FloatingActionButton floatBtnLock = findViewById(R.id.lockButtonId);
         floatBtnLock.setOnClickListener(view -> enterAreaLock());
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerListOfEntry.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerListOfEntry.addItemDecoration(
                 new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
+        recyclerListOfEntry.setHasFixedSize(true);
 
         //Botão Lista de Entradas
         FloatingActionButton floatBtnListOfEntries = findViewById(R.id.btnListAllEntriesId);
@@ -318,10 +321,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private BottomSheetBehavior.BottomSheetCallback callbackSheetBehavior() {
         return (new BottomSheetBehavior.BottomSheetCallback() {
+            @SuppressLint("SimpleDateFormat")
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     filter(tvDate.getText().toString());
+                } else if (newState == BottomSheetBehavior.STATE_HIDDEN){
+                    sFilter = Utils.DAY;
+                    spinnerFilter.setSelection(0);
+                    Date dateTimeStamp = new Date();
+                    date = new SimpleDateFormat("dd/MM/yyyy").format(dateTimeStamp);
+                    tvDate.setText(date);
+                    filter(date);
                 }
             }
 
@@ -339,12 +350,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void filter(String date) {
         Log.d("appkey", "Chamou Filter: "+ sFilter +": "+date);
-        if (sFilter.equals("Dia")){
+        if (sFilter.equals(Utils.DAY)){
             setListEntryForDay(date);
-        } else if (sFilter.equals("Mês")) {
+        } else if (sFilter.equals(Utils.MONTH)) {
             setListEntryForMonth(date);
         } else {
-            setListEntryForYear(tvDate.getText().toString());
+            setListEntryForYear(date);
         }
     }
 
@@ -384,6 +395,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         sFilter = adapterView.getItemAtPosition(i).toString();
+        filter(tvDate.getText().toString());
     }
 
     @Override

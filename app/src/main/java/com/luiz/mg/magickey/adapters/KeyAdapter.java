@@ -250,9 +250,12 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
                 if (isListOfUser) {
                     listKeys.remove(viewHolder.getAdapterPosition());
+                    notifyItemRemoved(viewHolder.getAdapterPosition());
                 }
 
-                notifyItemRemoved(viewHolder.getAdapterPosition());
+                notifyItemChanged(viewHolder.getAdapterPosition());
+
+
 
             }
         }

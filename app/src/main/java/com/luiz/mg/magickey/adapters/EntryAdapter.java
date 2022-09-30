@@ -1,11 +1,8 @@
 package com.luiz.mg.magickey.adapters;
 
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +10,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -77,8 +73,6 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 
@@ -106,37 +100,8 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
 
         //Mudar cor se a chave não foi devolvida
         if (entry.getDateBackKey() == null) {
-
-            //Cor do Texto
-            int colorText = ContextCompat.getColor(
-                    viewHolder.backgroundItemListEntry.getContext(), R.color.red);
-
-            //Cor do background
-            int colorBackground = ContextCompat.getColor(
-                    viewHolder.backgroundItemListEntry.getContext(),
-                    R.color.red_background_color_entry_key);
-
-            //Setando Nome do usuário que devolveu como "Não Devolvida!"
             viewHolder.nameUserBacked.setText(Utils.NO_BACKED);
-            //Setando cor vermelha
-            viewHolder.nameUserBacked.setTextColor(colorText);
-
-            //Setando data e hora como ""
             viewHolder.dateTimeBacked.setText("");
-
-            //Setando cor do background
-            viewHolder.backgroundItemListEntry.setBackgroundColor(colorBackground);
-
-            //Setando onClick
-            viewHolder.backgroundItemListEntry.setClickable(true);
-            viewHolder.backgroundItemListEntry.setFocusable(true);
-            TypedValue outValue = new TypedValue();
-            viewHolder.backgroundItemListEntry.getContext().getTheme()
-                    .resolveAttribute(
-                            android.R.attr.selectableItemBackground, outValue, true);
-            Drawable drawable = viewHolder.backgroundItemListEntry.getContext().getResources()
-                    .getDrawable(outValue.resourceId);
-            viewHolder.backgroundItemListEntry.setForeground(drawable);
             viewHolder.backgroundItemListEntry.setOnClickListener(view -> openActivity(view, entry));
 
         }
