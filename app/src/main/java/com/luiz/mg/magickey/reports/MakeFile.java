@@ -73,7 +73,7 @@ public class MakeFile {
 
                 //Bitmap
                 bitmaps[i] = Bitmap.createBitmap(
-                        bitmap, 0, heightBitmap, bitmap.getWidth(), heightBitmap);
+                        bitmap, 0, i * heightBitmap, bitmap.getWidth(), heightBitmap);
 
                 canvas.drawBitmap(bitmaps[i], null, new Rect(
                         Utils.MARGIN_START, Utils.MARGIN_TOP + 40,
