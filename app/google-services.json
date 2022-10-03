@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "435851852248",
+    "project_id": "magickey-5185e",
+    "storage_bucket": "magickey-5185e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435851852248:android:ccf3a6c965447bdbb51aad",
+        "android_client_info": {
+          "package_name": "com.luiz.mg.magickey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "435851852248-icfjuqjphduo6ncnebmi25p3kltni0mv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.luiz.mg.magickey",
+            "certificate_hash": "8daa453509b3ec4cfa5ed58208788d472c8f1e65"
+          }
+        },
+        {
+          "client_id": "435851852248-2o9ihmhj77gggv3i9q5arg9jlp0cb2ct.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7G4xF58hXhwX_twFnFh9IXl2MiiZ6qq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435851852248-2o9ihmhj77gggv3i9q5arg9jlp0cb2ct.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
