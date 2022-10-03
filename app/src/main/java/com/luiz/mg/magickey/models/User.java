@@ -6,6 +6,8 @@ public class User {
     private String Name;
     private String Dept;
 
+    public User() {}
+
     public User(String mat, String name, String dept) {
         Mat = mat;
         Name = name;

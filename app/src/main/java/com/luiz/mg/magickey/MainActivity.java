@@ -29,9 +29,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.luiz.mg.magickey.adapters.EntryAdapter;
 import com.luiz.mg.magickey.dao.EntryDAO;
-import com.luiz.mg.magickey.dao.UserDAO;
 import com.luiz.mg.magickey.db.FeedReaderDbHelper;
 import com.luiz.mg.magickey.fragments.DatePickerFragment;
 import com.luiz.mg.magickey.models.Entry;
@@ -43,12 +44,14 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
     public static FeedReaderDbHelper dbHelper;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private String userId = "";
     private TextView textViewUserId;
@@ -59,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EntryDAO entryDAO;
     RecyclerView recyclerListOfEntry;
     TextView tvDate;
+
+    ConstraintLayout progressBar;
 
     String date, date1;
     String sFilter = "Dia";
@@ -73,16 +78,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         dbHelper = new FeedReaderDbHelper(getApplicationContext());
 
-        //KeyDAO keyDAO = new KeyDAO(dbHelper);
-        //keyDAO.deleteAllKeys();
-        //keyDAO.addKeysOfList(Utils.getListAllKeys());
 
-        //UserDAO userDAO = new UserDAO(getApplicationContext());
-        //userDAO.addUsersOfList(ReadFile.getListUsersOfFile());
-        //userDAO.deleteAllUsers();
-
-        //entryDAO = new EntryDAO(dbHelper);
-        //entryDAO.deleteAllEntry();
+        //Barra de progresso
+        progressBar = findViewById(R.id.progressBarId);
 
         //Botão de Área Restrita
         FloatingActionButton floatBtnLock = findViewById(R.id.lockButtonId);
@@ -191,20 +189,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         } else {
 
-            UserDAO userDAO = new UserDAO(dbHelper);
-            User user = userDAO.consultUser(userId);
+            //Exibir barra de progresso
+            progressBar.setVisibility(View.VISIBLE);
 
-            if ( user == null) {
 
-                showAlert("Erro de Login!", "Usuário não encontrado!");
+            //Consultar Usuário
+            db.collection("users")
+                .whereEqualTo("mat", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
 
-            } else {
+                        if (task.getResult().isEmpty()) {
+                            userId = "";
+                            textViewUserId.setText(userId);
+                            progressBar.setVisibility(View.INVISIBLE);
+                            showAlert("Erro de Login!", "Usuário não encontrado!");
+                        } else {
 
-                userId = "";
-                textViewUserId.setText(userId);
-                openTakeOrBackKeysActivity(user);
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d("appkey", document.getId() + " => "
+                                        + document.getData());
 
-            }
+                                User user = document.toObject(User.class);
+
+                                userId = "";
+                                textViewUserId.setText(userId);
+                                progressBar.setVisibility(View.INVISIBLE);
+                                openTakeOrBackKeysActivity(user);
+
+                            }
+                        }
+                    } else {
+
+                        userId = "";
+                        textViewUserId.setText(userId);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        showAlert("Falha!", Objects.requireNonNull(task.getException())
+                                .getMessage());
+                        Log.d("appkey", task.getException().getMessage());
+
+                    }
+                });
+
         }
     }
 

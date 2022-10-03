@@ -27,7 +27,11 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.luiz.mg.magickey.adapters.KeyAdapter;
 import com.luiz.mg.magickey.adapters.UserAdapter;
 import com.luiz.mg.magickey.dao.KeyDAO;
@@ -41,6 +45,8 @@ import com.luiz.mg.magickey.utils.Utils;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class RestrictAreaActivity extends AppCompatActivity implements View.OnClickListener,
@@ -53,6 +59,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     private boolean isUsers = true;
     private boolean isLotUsers = true;
     private String dept = Utils.sector;
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
     ActivityResultLauncher<String> mGetContent =
         registerForActivityResult(new ActivityResultContracts.GetContent(),
@@ -346,6 +355,27 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                     mat.getText().toString(),
                     name.getText().toString(),
                     dept);
+
+            //Criar Objeto user
+           /* Map<String, Object> newUser = new HashMap<>();
+            newUser.put("mat", mat.getText().toString());
+            newUser.put("name", name.getText().toString());
+            newUser.put("dept", dept);
+            newUser.put("active", true);
+
+            db.collection("users")
+                    .add(newUser)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });*/
 
             int statusId = userDAO.addUser(newUser);
 
