@@ -103,6 +103,8 @@
     <string name="img_csv">Imagem contendo exemplo dos campos matrícula, Nome e Setor separados por vírgula em arquivo csv.</string>
     <string name="pick_file">Escolher arquivo...</string>
     <string name="img2_csv">Imagem contendo exemplo dos campos nome, setor e emprestada separados por vírgula em arquivo csv.</string>
+    <string name="key_exists">Chave já está cadastrada!</string>
+    <string name="user_exists">Usuário já cadastrado!</string>
     <string-array name="depts_array">
         <item>-- Setor --</item>
         <item>CTI</item>

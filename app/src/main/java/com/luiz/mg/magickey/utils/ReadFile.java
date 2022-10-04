@@ -70,9 +70,9 @@ public class ReadFile {
 
                 String[] key = line.split(div);
 
-                Key k = new Key(key[0], key[1], key[2]);
+                //Key k = new Key(key[0], key[1], key[2]);
 
-                list.add(k);
+                //list.add(k);
 
             }
 

@@ -1,37 +1,40 @@
 package com.luiz.mg.magickey.models;
 
 public class Key {
-    private String nameKey;
-    private String deptKey;
-    private String borrowedKey;
 
-    public Key(String name, String dept, String borrowed) {
-        this.nameKey = name;
-        this.deptKey = dept;
-        this.borrowedKey = borrowed;
+    private String Name;
+    private String Dept;
+    private boolean Borr;
+
+    public Key() {}
+
+    public Key(String name, String dept, boolean borrowed) {
+        this.Name = name;
+        this.Dept = dept;
+        this.Borr = borrowed;
     }
 
-    public String getNameKey() {
-        return nameKey;
+    public String getName() {
+        return Name;
     }
 
-    public void setNameKey(String name) {
-        nameKey = name;
+    public void setName(String name) {
+        Name = name;
     }
 
-    public String getDeptKey() {
-        return deptKey;
+    public String getDept() {
+        return Dept;
     }
 
-    public void setDeptKey(String dept) {
-        deptKey = dept;
+    public void setDept(String dept) {
+        Dept = dept;
     }
 
-    public String getBorrowedKey() {
-        return borrowedKey;
+    public boolean getBorr() {
+        return Borr;
     }
 
-    public void setBorrowedKey(String borrowed) {
-        borrowedKey = borrowed;
+    public void setBorr(boolean borrowed) {
+        Borr = borrowed;
     }
 }

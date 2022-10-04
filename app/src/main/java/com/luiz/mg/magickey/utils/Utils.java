@@ -50,8 +50,10 @@ public class Utils {
      public static final String PICK_FILE_CSV = "Você deve escolher um arquivo .csv com " +
              "os campos separados por vírgula, como na imagem abaixo.";
      public static final String MONTH = "Mês";
+     public static final String BORR = "Emprestada";
+     public static final String NOT_BORR = "Não Emprestada";
 
-     public static Bitmap screenShot (RecyclerView view) {
+    public static Bitmap screenShot (RecyclerView view) {
           //noinspection rawtypes
           RecyclerView.Adapter adapter = view.getAdapter();
 

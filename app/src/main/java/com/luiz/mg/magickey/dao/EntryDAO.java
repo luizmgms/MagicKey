@@ -41,7 +41,7 @@ public class EntryDAO {
         ContentValues values = new ContentValues();
 
         //Nome da Chave
-        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_KEY, key.getNameKey());
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_KEY, key.getName());
 
         //Matrícula, Nome, Data e Hora de quem pegou a Chave
         values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_MAT_TAKE, user.getMat());
@@ -88,7 +88,7 @@ public class EntryDAO {
         // Upgrade Entry quando id_key = idKey AND mat_take = MatUser
         String selection = FeedReaderContract.FeedEntry.COLUMN_NAME_KEY + " = ? AND " +
                 FeedReaderContract.FeedEntry.COLUMN_NAME_NAME_BACK + " IS NULL";
-        String[] selectionArgs = { key.getNameKey() };
+        String[] selectionArgs = { key.getName() };
 
         long statusId = db.update(
                 FeedReaderContract.FeedEntry.TABLE_NAME,

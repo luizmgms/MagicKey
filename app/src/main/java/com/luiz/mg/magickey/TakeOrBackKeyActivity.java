@@ -157,11 +157,11 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
         ArrayList<Key> listKey = new ArrayList<>();
 
-        for(Entry e : listEntry) {
-            String deptKey = consultDeptOfKey(e.getNameKey());
-            Key k = new Key(e.getNameKey(), deptKey, Utils.YES_KEY);
+        /*for(Entry e : listEntry) {
+            String deptKey = consultDeptOfKey(e.getName());
+            Key k = new Key(e.getName(), deptKey, Utils.YES_KEY);
             listKey.add(k);
-        }
+        }*/
 
         return listKey;
     }
@@ -171,7 +171,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         if (k == null)
             return "";
         else
-            return k.getDeptKey();
+            return k.getDept();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -225,7 +225,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
                     ArrayList<Key> listSearch = new ArrayList<>();
 
                     for (Key k: listAllKeys) {
-                        if (k.getNameKey().toLowerCase().contains(sDigited.toLowerCase())) {
+                        if (k.getName().toLowerCase().contains(sDigited.toLowerCase())) {
                             listSearch.add(k);
                         }
                     }
@@ -242,7 +242,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         ArrayList<Key> list = new ArrayList<>();
 
         for (Key k: listKeys) {
-            if (k.getDeptKey().equals(dept))
+            if (k.getDept().equals(dept))
                 list.add(k);
         }
 
@@ -311,7 +311,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         ArrayList<Key> listSearch = new ArrayList<>();
 
         for (Key k: list) {
-            if (k.getNameKey().toLowerCase().contains(sDigited.toLowerCase())) {
+            if (k.getName().toLowerCase().contains(sDigited.toLowerCase())) {
                 listSearch.add(k);
             }
         }

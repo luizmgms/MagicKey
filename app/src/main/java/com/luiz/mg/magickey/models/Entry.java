@@ -29,7 +29,7 @@ public class Entry {
         this.timeBackKey = timeBackKey;
     }
 
-    public String getNameKey() {
+    public String getName() {
         return nameKey;
     }
 

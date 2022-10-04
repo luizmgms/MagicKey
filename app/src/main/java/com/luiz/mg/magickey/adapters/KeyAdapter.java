@@ -78,10 +78,10 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 
-        Key key = listKeys.get(position);
+        /*Key key = listKeys.get(position);
 
-        viewHolder.name.setText(key.getNameKey());
-        viewHolder.dept.setText(key.getDeptKey());
+        viewHolder.name.setText(key.getName());
+        viewHolder.dept.setText(key.getDept());
 
         //Se user for null esconde botão e setLongClick
         if (user == null) {
@@ -114,7 +114,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
         }
 
         // Se a chave não está emprestada
-        if (key.getBorrowedKey().equals(Utils.NO_KEY)) {
+        if (key.getBorr().equals(Utils.NO_KEY)) {
 
             setViewsLikeTake(viewHolder);
 
@@ -122,12 +122,12 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
             setViewsLikeBack(viewHolder);
 
-        }
+        }*/
     }
 
     private void deleteKey(Context context, int pos) {
 
-        int status = keyDAO.deleteKey(listKeys.get(pos).getNameKey());
+        int status = keyDAO.deleteKey(listKeys.get(pos).getName());
 
         if (status == -1) {
             Toast.makeText(context, R.string.erro_delete_key, Toast.LENGTH_SHORT).show();
@@ -168,8 +168,8 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
     //Pegar chave
     private void takeOrBackKey(Key key, User user, ViewHolder viewHolder) {
 
-        //Se chave não está emprestada, pegar chave
-        if (key.getBorrowedKey().equals(Utils.NO_KEY)) {
+        /*//Se chave não está emprestada, pegar chave
+        if (key.getBorr().equals(Utils.NO_KEY)) {
 
             Log.d("appkey", "tentando pegar chave...");
 
@@ -181,7 +181,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
             backKey(key, user, viewHolder);
 
-        }
+        }*/
     }
 
 
@@ -191,7 +191,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
         //Tentar add Entry
         // Se -1, erro ao tentar add
-        if(entryDAO.addEntry(key, user) == -1) {
+        /*if(entryDAO.addEntry(key, user) == -1) {
 
             Log.d("appkey", "Erro ao tentar adicionar entry no DB- TAKE KEY");
             Toast.makeText(context, R.string.erro_take_key, Toast.LENGTH_SHORT).show();
@@ -217,14 +217,14 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
                 notifyDataSetChanged();
 
             }
-        }
+        }*/
     }
 
     private void backKey(Key key, User user, ViewHolder viewHolder) {
 
         //Tentar add Entry
         // Se -1, erro ao tentar add
-        if(entryDAO.upDateEntry(key, user) == -1) {
+        /*if(entryDAO.upDateEntry(key, user) == -1) {
 
             Log.d("appkey", "Erro ao tentar adicionar Entry - BACK KEY");
             Toast.makeText(context, R.string.erro_take_key, Toast.LENGTH_SHORT).show();
@@ -258,7 +258,7 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
 
             }
-        }
+        }*/
 
     }
 

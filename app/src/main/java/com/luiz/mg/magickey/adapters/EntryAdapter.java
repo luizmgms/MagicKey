@@ -79,7 +79,7 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
         Entry entry = listEntry.get(position);
 
         //Set Nome da Chave
-        String nkb = Utils.KEY+" "+entry.getNameKey();
+        String nkb = Utils.KEY+" "+entry.getName();
         viewHolder.nameKey.setText(nkb);
 
         //Set Nome de quem pegou a chave

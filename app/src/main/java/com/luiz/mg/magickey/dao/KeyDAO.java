@@ -24,16 +24,16 @@ public class KeyDAO {
     //Adicionar uma chave
     public int addKey (Key key) {
         //Se a chave não existe
-        if (consultKey(key.getNameKey()) == null) {
+        if (consultKey(key.getName()) == null) {
 
             // Gets the data repository in write mode
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             // Create a new map of values, where column names are the keys
             ContentValues values = new ContentValues();
-            values.put(FeedReaderContract.Feedkeys.COLUMN_NAME_NAME, key.getNameKey());
-            values.put(FeedReaderContract.Feedkeys.COLUMN_NAME_DEPT, key.getDeptKey());
-            values.put(FeedReaderContract.Feedkeys.COLUMN_NAME_BORROWED, key.getBorrowedKey());
+            values.put(FeedReaderContract.Feedkeys.COLUMN_NAME_NAME, key.getName());
+            values.put(FeedReaderContract.Feedkeys.COLUMN_NAME_DEPT, key.getDept());
+            values.put(FeedReaderContract.Feedkeys.COLUMN_NAME_BORROWED, key.getBorr());
 
             // Insert the new row, returning the primary key value of the new row
             long newRowId = db.insert(FeedReaderContract.Feedkeys.TABLE_NAME,
@@ -63,14 +63,14 @@ public class KeyDAO {
             for (Key k : list) {
                 int status = addKey(k);
                 if (status == 0) {
-                    Log.d("appkey", "Adicionar Chave " + k.getNameKey() +
+                    Log.d("appkey", "Adicionar Chave " + k.getName() +
                             ": Chave já existe!");
                 } else if (status == 1) {
-                    Log.d("appkey", "Adicionar Chave " + k.getNameKey() +
+                    Log.d("appkey", "Adicionar Chave " + k.getName() +
                             ": Sucesso!");
                     i++;
                 } else {
-                    Log.d("appkey", "Adicionar Chave " + k.getNameKey() +
+                    Log.d("appkey", "Adicionar Chave " + k.getName() +
                             ": Erro Desconhecido!");
                 }
             }
@@ -124,7 +124,7 @@ public class KeyDAO {
             String bor = cursor.getString(
                     cursor.getColumnIndexOrThrow(FeedReaderContract.Feedkeys.COLUMN_NAME_BORROWED));
 
-            key = new Key(name, dept, bor);
+            //key = new Key(name, dept, bor);
             //keys.add(key);
 
         }
@@ -184,8 +184,8 @@ public class KeyDAO {
             String bor = cursor.getString(
                     cursor.getColumnIndexOrThrow(FeedReaderContract.Feedkeys.COLUMN_NAME_BORROWED));
 
-            Key key = new Key(name, dept, bor);
-            listKeys.add(key);
+            //Key key = new Key(name, dept, bor);
+            //listKeys.add(key);
             //Log.d("listkey", name+"  "+dept+ ""+ bor);
 
         }
@@ -230,8 +230,8 @@ public class KeyDAO {
             String bor = cursor.getString(
                     cursor.getColumnIndexOrThrow(FeedReaderContract.Feedkeys.COLUMN_NAME_BORROWED));
 
-            Key key = new Key(name, sect, bor);
-            listKeys.add(key);
+           // Key key = new Key(name, sect, bor);
+            //listKeys.add(key);
 
         }
 
@@ -253,7 +253,7 @@ public class KeyDAO {
 
         // Filter results WHERE "title" = 'My Title'
         String selection = FeedReaderContract.Feedkeys.COLUMN_NAME_NAME + " = ?";
-        String[] selectionArgs = { key.getNameKey() };
+        String[] selectionArgs = { key.getName() };
 
         // Insert the new row, returning the primary key value of the new row
         long statusId = db.update(
@@ -283,7 +283,7 @@ public class KeyDAO {
 
         // Filter results WHERE "title" = 'My Title'
         String selection = FeedReaderContract.Feedkeys.COLUMN_NAME_NAME + " = ?";
-        String[] selectionArgs = { key.getNameKey() };
+        String[] selectionArgs = { key.getName() };
 
         // Insert the new row, returning the primary key value of the new row
         long statusId = db.update(
