@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.luiz.mg.magickey.adapters.KeyAdapter;
 import com.luiz.mg.magickey.adapters.UserAdapter;
 import com.luiz.mg.magickey.dao.KeyDAO;
@@ -268,7 +269,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
             @Override
             protected boolean onClicked() {
-                return addNewUser(itMatUser, itNameUser, spinner);//Retornando true fecha o dialog
+                return addNewUser(itMatUser, itNameUser, spinner, dialog);//Retornando true fecha o dialog
             }
         });
 
@@ -329,8 +330,56 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         });
     }
 
+    private void consultUser(User user, AlertDialog dialog) {
+
+        db.collection("users")
+                .whereEqualTo("mat", user.getMat())
+                .get()
+                .addOnCompleteListener(task -> {
+
+                    if (task.isSuccessful()) {
+
+                        if (task.getResult().isEmpty()) {
+
+                            addUserInDatabase(user, dialog);
+
+                        } else {
+
+                            Toast.makeText(this, Utils.ADD_USER_EXISTS, Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    } else {
+
+                        Toast.makeText(this, "Falha!", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+
+    }
+
+    private void addUserInDatabase(User user, AlertDialog dialog) {
+
+        db.collection("users").add(user)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        listUsers.add(user);
+                        setListUser(listUsers);
+                        dialog.dismiss();
+                        Toast.makeText(RestrictAreaActivity.this, Utils.ADD_USER_SUCCESS,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(RestrictAreaActivity.this, Utils.ADD_USER_FAIL,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     @SuppressLint("NotifyDataSetChanged")
-    private boolean addNewUser(TextInputEditText mat, TextInputEditText name, Spinner spinner) {
+    private boolean addNewUser(TextInputEditText mat, TextInputEditText name, Spinner spinner, AlertDialog dialog) {
 
         if (Objects.requireNonNull(mat.getText()).toString().equals("")) {
 
@@ -350,11 +399,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         } else { //Todos os campos foram preenchidos
 
-            UserDAO userDAO  = new UserDAO(MainActivity.dbHelper);
-            User newUser = new User(
-                    mat.getText().toString(),
-                    name.getText().toString(),
-                    dept);
+            User newUser = new User(mat.getText().toString(), name.getText().toString(), dept);
+
+            consultUser(newUser, dialog);
 
             //Criar Objeto user
            /* Map<String, Object> newUser = new HashMap<>();
@@ -377,42 +424,8 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                         }
                     });*/
 
-            int statusId = userDAO.addUser(newUser);
+            return false;
 
-            if ( statusId == 1) { //Usuário adicionado com sucesso
-
-                Log.d("appkey", Utils.ADD_USER_SUCCESS);
-
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_user_succes, Toast.LENGTH_LONG).show();
-
-                listUsers.add(newUser);
-                Objects.requireNonNull(recyclerViewOfList.getAdapter()).notifyDataSetChanged();
-
-                mat.setText("");
-                name.setText("");
-                spinner.setSelection(0);
-
-                return true;
-
-            } else if (statusId == -1 ) { //Erro ao adicionar usuário
-
-                Log.d("appkey", Utils.ADD_USER_FAIL);
-
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_user_fail, Toast.LENGTH_LONG).show();
-
-                return false;
-
-            } else { //Usuário já cadastrado
-
-                Log.d("appkey", Utils.ADD_USER_EXISTS);
-
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_user_erro, Toast.LENGTH_LONG).show();
-
-                return false;
-            }
         }
     }
 
