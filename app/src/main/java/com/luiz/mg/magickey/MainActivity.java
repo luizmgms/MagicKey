@@ -27,21 +27,29 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.luiz.mg.magickey.adapters.EntryAdapter;
+import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForEntry;
+import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForKey;
 import com.luiz.mg.magickey.dao.EntryDAO;
 import com.luiz.mg.magickey.db.FeedReaderDbHelper;
 import com.luiz.mg.magickey.fragments.DatePickerFragment;
 import com.luiz.mg.magickey.models.Entry;
+import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.reports.MakeFile;
+import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.Utils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
@@ -50,8 +58,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
-    public static FeedReaderDbHelper dbHelper;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    public static FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private String userId = "";
     private TextView textViewUserId;
@@ -59,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @SuppressWarnings("rawtypes")
     public static BottomSheetBehavior bottomSheetBehavior;
     ArrayList<Entry> listEntry = new ArrayList<>();
-    EntryDAO entryDAO;
     RecyclerView recyclerListOfEntry;
     TextView tvDate;
 
@@ -70,13 +76,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     Spinner spinnerFilter;
 
+    FirestoreRecyclerAdapterForEntry adapterEntry;
+
     @SuppressLint("SimpleDateFormat")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        Log.d("appkey", "DataTime: "+dtf.format(LocalDateTime.now()));
 
 
         //Barra de progresso
@@ -107,20 +116,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //RecyclerView de Entry
         recyclerListOfEntry = findViewById(R.id.listEntryId);
-        recyclerListOfEntry.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerListOfEntry.setLayoutManager(new LinearLayoutManagerWrapper(this));
         recyclerListOfEntry.addItemDecoration(
                 new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         recyclerListOfEntry.setHasFixedSize(true);
 
+        Query query = db.collection("entry");
+
+        //FirebaseRecyclerOptions
+        FirestoreRecyclerOptions<Entry> optionsEntry = new FirestoreRecyclerOptions.Builder<Entry>()
+                .setQuery(query, Entry.class)
+                .build();
+
+        //FirestoreRecyclerAdapter para Chave
+        adapterEntry = new FirestoreRecyclerAdapterForEntry(optionsEntry);
+
+        recyclerListOfEntry.setAdapter(adapterEntry);
+
         //Botão Lista de Entradas
         FloatingActionButton floatBtnListOfEntries = findViewById(R.id.btnListAllEntriesId);
 
-        //Inicializando DAO Entry
-        entryDAO = new EntryDAO(dbHelper);
 
         //Setando lista das Entry do dia no ReclycerView
-        filter(date);
-        Log.d("appkey", "Filtro: "+sFilter+", "+date);
+        //filter(date);
+        //Log.d("appkey", "Filtro: "+sFilter+", "+date);
 
         //Clique do botão
         floatBtnListOfEntries.setOnClickListener(view ->
@@ -189,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             //Exibir barra de progresso
             progressBar.setVisibility(View.VISIBLE);
-
 
             //Consultar Usuário
             db.collection("users")
@@ -350,14 +368,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    filter(tvDate.getText().toString());
+                    //filter(tvDate.getText().toString());
                 } else if (newState == BottomSheetBehavior.STATE_HIDDEN){
-                    sFilter = Utils.DAY;
+                    /*sFilter = Utils.DAY;
                     spinnerFilter.setSelection(0);
                     Date dateTimeStamp = new Date();
                     date = new SimpleDateFormat("dd/MM/yyyy").format(dateTimeStamp);
                     tvDate.setText(date);
-                    filter(date);
+                    filter(date);*/
                 }
             }
 
@@ -376,37 +394,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void filter(String date) {
         Log.d("appkey", "Chamou Filter: "+ sFilter +": "+date);
         if (sFilter.equals(Utils.DAY)){
-            setListEntryForDay(date);
+            //setListEntryForDay(date);
         } else if (sFilter.equals(Utils.MONTH)) {
-            setListEntryForMonth(date);
+            //setListEntryForMonth(date);
         } else {
-            setListEntryForYear(date);
+            //setListEntryForYear(date);
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private void setListEntryForDay(String date) {
-        listEntry = entryDAO.listEntriesForDateTake(date);
-        EntryAdapter entryAdapter = new EntryAdapter(listEntry);
-        recyclerListOfEntry.setAdapter(entryAdapter);
-        entryAdapter.notifyDataSetChanged();
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void setListEntryForMonth(String date) {
-        listEntry = entryDAO.listEntriesForMonthTake(date);
-        EntryAdapter entryAdapter = new EntryAdapter(listEntry);
-        recyclerListOfEntry.setAdapter(entryAdapter);
-        entryAdapter.notifyDataSetChanged();
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void setListEntryForYear(String date) {
-            listEntry = entryDAO.listEntriesForYearTake(date);
-            EntryAdapter entryAdapter = new EntryAdapter(listEntry);
-            recyclerListOfEntry.setAdapter(entryAdapter);
-            entryAdapter.notifyDataSetChanged();
-        }
 
     @Override
     public void onBackPressed() {
@@ -419,8 +414,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        sFilter = adapterView.getItemAtPosition(i).toString();
-        filter(tvDate.getText().toString());
+        //sFilter = adapterView.getItemAtPosition(i).toString();
+        //filter(tvDate.getText().toString());
     }
 
     @Override
@@ -491,8 +486,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        adapterEntry.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapterEntry.stopListening();
+    }
+
+    @Override
     protected void onDestroy() {
-        dbHelper.close();
         super.onDestroy();
     }
 }

@@ -6,30 +6,28 @@ public class Entry {
 
     private String matUserTakeKey;
     private String nameUserTakeKey;
-    private String dateTakeKey;
-    private String timeTakeKey;
+    private String dateTimeTakeKey;
 
     private String matUserBackKey;
     private String nameUserBackKey;
-    private String dateBackKey;
-    private String timeBackKey;
+    private String dateTimeBackKey;
+
+    public Entry() {
+    }
 
     public Entry(String nameKey, String matUserTakeKey, String nameUserTakeKey,
-                 String dateTakeKey, String timeTakeKey, String matUserBackKey,
-                 String nameUserBackKey, String dateBackKey, String timeBackKey) {
-
+                 String dateTimeTakeKey, String matUserBackKey, String nameUserBackKey,
+                 String dateTimeBackKey) {
         this.nameKey = nameKey;
         this.matUserTakeKey = matUserTakeKey;
         this.nameUserTakeKey = nameUserTakeKey;
-        this.dateTakeKey = dateTakeKey;
-        this.timeTakeKey = timeTakeKey;
+        this.dateTimeTakeKey = dateTimeTakeKey;
         this.matUserBackKey = matUserBackKey;
         this.nameUserBackKey = nameUserBackKey;
-        this.dateBackKey = dateBackKey;
-        this.timeBackKey = timeBackKey;
+        this.dateTimeBackKey = dateTimeBackKey;
     }
 
-    public String getName() {
+    public String getNameKey() {
         return nameKey;
     }
 
@@ -53,20 +51,12 @@ public class Entry {
         this.nameUserTakeKey = nameUserTakeKey;
     }
 
-    public String getDateTakeKey() {
-        return dateTakeKey;
+    public String getDateTimeTakeKey() {
+        return dateTimeTakeKey;
     }
 
-    public void setDateTakeKey(String dateTakeKey) {
-        this.dateTakeKey = dateTakeKey;
-    }
-
-    public String getTimeTakeKey() {
-        return timeTakeKey;
-    }
-
-    public void setTimeTakeKey(String timeTakeKey) {
-        this.timeTakeKey = timeTakeKey;
+    public void setDateTimeTakeKey(String dateTimeTakeKey) {
+        this.dateTimeTakeKey = dateTimeTakeKey;
     }
 
     public String getMatUserBackKey() {
@@ -85,19 +75,11 @@ public class Entry {
         this.nameUserBackKey = nameUserBackKey;
     }
 
-    public String getDateBackKey() {
-        return dateBackKey;
+    public String getDateTimeBackKey() {
+        return dateTimeBackKey;
     }
 
-    public void setDateBackKey(String dateBackKey) {
-        this.dateBackKey = dateBackKey;
-    }
-
-    public String getTimeBackKey() {
-        return timeBackKey;
-    }
-
-    public void setTimeBackKey(String timeBackKey) {
-        this.timeBackKey = timeBackKey;
+    public void setDateTimeBackKey(String dateTimeBackKey) {
+        this.dateTimeBackKey = dateTimeBackKey;
     }
 }

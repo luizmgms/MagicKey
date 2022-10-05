@@ -20,6 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.luiz.mg.magickey.adapters.KeyAdapter;
 import com.luiz.mg.magickey.dao.EntryDAO;
 import com.luiz.mg.magickey.dao.KeyDAO;
+import com.luiz.mg.magickey.db.FeedReaderDbHelper;
 import com.luiz.mg.magickey.models.Entry;
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
@@ -80,22 +81,22 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         nameOfUser.setText(splitName[0]);
 
         //DAOs
-        entryDAO = new EntryDAO(MainActivity.dbHelper);
-        keyDAO = new KeyDAO(MainActivity.dbHelper);
+        //entryDAO = new EntryDAO(MainActivity.dbHelper);
+        //keyDAO = new KeyDAO(MainActivity.dbHelper);
 
         //Popular Lista com todas as chaves
-        listAllKeys = keyDAO.listKeys();
+        listAllKeys = new KeyDAO(new FeedReaderDbHelper(getApplicationContext())).listKeys();
         //Popular Lista de chaves do setor do usuário
         listKeysOfDeptOfUser = getListKeysOfSetorOfUser(user.getDept(), listAllKeys);
         //Popular lista de Entry do Usuário
-        listEntryOfUser = entryDAO.listEntriesOfUser(user.getMat());
+        listEntryOfUser = new ArrayList<>();
 
         Log.d("appkey", "---------------------------------------------------------------------------");
         Log.d("appkey", "Mat: "+user.getMat()+", Nome: "+user.getName()+", Setor: "+user.getDept());
 
-        for (Entry e: listEntryOfUser){
+        /*for (Entry e: listEntryOfUser){
             Log.d("appkey", "Lista Entry -  Mat: "+e.getMatUserTakeKey()+", "+e.getDateTakeKey()+" "+e.getTimeTakeKey()+", "+e.getDateBackKey());
-        }
+        }*/
 
         /* RecyclerViews */
         //Setando RecyclerView da lista da chaves que o usuário pegou e não devolveu
@@ -103,8 +104,8 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         recyclerViewListOfKeysOfUser.addItemDecoration(
                 new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         //Adapter
-        keyAdapter = new KeyAdapter(
-                getListKeysOfUser(listEntryOfUser), user, true, getApplicationContext(), MainActivity.dbHelper);
+        //keyAdapter = new KeyAdapter(
+        //        getListKeysOfUser(listEntryOfUser), user, true, getApplicationContext(), MainActivity.dbHelper);
         recyclerViewListOfKeysOfUser.setAdapter(keyAdapter);
         recyclerViewListOfKeysOfUser.setHasFixedSize(true);
 
@@ -112,8 +113,8 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         recyclerViewAllKeys.setLayoutManager( new LinearLayoutManager(getApplicationContext()));
         recyclerViewAllKeys.addItemDecoration(
                 new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
-        keyAdapter = new KeyAdapter(
-                listAllKeys, user, false, getApplicationContext(), MainActivity.dbHelper);
+        //keyAdapter = new KeyAdapter(
+         //       listAllKeys, user, false, getApplicationContext(), MainActivity.dbHelper);
         recyclerViewAllKeys.setAdapter(keyAdapter);
         recyclerViewAllKeys.setHasFixedSize(true);
 
@@ -176,34 +177,34 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void setListKeysOfSetorOfUser(ArrayList<Key> listKeys) {
-        recyclerViewAllKeys.setAdapter(
+        /*recyclerViewAllKeys.setAdapter(
                 new KeyAdapter(
                         listKeys, user, false, getApplicationContext(), MainActivity.dbHelper
                 )
         );
-        Objects.requireNonNull(recyclerViewAllKeys.getAdapter()).notifyDataSetChanged();
+        Objects.requireNonNull(recyclerViewAllKeys.getAdapter()).notifyDataSetChanged();*/
     }
 
     //Lista de todas as chaves
     @SuppressLint("NotifyDataSetChanged")
     private void setListAllKeys(ArrayList<Key> list) {
-        recyclerViewAllKeys.setAdapter(
+        /*recyclerViewAllKeys.setAdapter(
                 new KeyAdapter(
                         list, user, false, getApplicationContext(), MainActivity.dbHelper
                 )
         );
-        Objects.requireNonNull(recyclerViewAllKeys.getAdapter()).notifyDataSetChanged();
+        Objects.requireNonNull(recyclerViewAllKeys.getAdapter()).notifyDataSetChanged();*/
     }
 
     //Setar Lista de chaves que estão sobre posse do usuário
     @SuppressLint("NotifyDataSetChanged")
     private void setListKeysOfUser(ArrayList<Key> list) {
 
-        recyclerViewListOfKeysOfUser.setAdapter(
+        /*recyclerViewListOfKeysOfUser.setAdapter(
                 new KeyAdapter(
                         list, user, true, getApplicationContext(), MainActivity.dbHelper
                 )
-        );
+        );*/
 
         Objects.requireNonNull(recyclerViewListOfKeysOfUser.getAdapter()).notifyDataSetChanged();
 
@@ -291,7 +292,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
                             // ... Set lista com todas as chaves
                             listAllKeys.clear();
-                            listAllKeys = keyDAO.listKeys();
+                            listAllKeys = new ArrayList<>();
                             setListAllKeys(listAllKeys);
 
                         }

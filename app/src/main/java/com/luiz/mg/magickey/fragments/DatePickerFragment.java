@@ -50,8 +50,8 @@ public class DatePickerFragment extends DialogFragment
 
         String date = sDay+"/"+sMonth+"/"+year;
 
-        tvDate.setText(date);
-        mainActivity.filter(date);
+        //tvDate.setText(date);
+        //mainActivity.filter(date);
 
     }
 }

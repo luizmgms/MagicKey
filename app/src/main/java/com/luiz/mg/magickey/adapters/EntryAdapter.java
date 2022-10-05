@@ -79,7 +79,7 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
         Entry entry = listEntry.get(position);
 
         //Set Nome da Chave
-        String nkb = Utils.KEY+" "+entry.getName();
+        String nkb = Utils.KEY+" "+entry.getNameKey();
         viewHolder.nameKey.setText(nkb);
 
         //Set Nome de quem pegou a chave
@@ -87,7 +87,7 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
         viewHolder.nameUserTaked.setText(nutk);
 
         //Set Data e Hora da entrega
-        String dtt = Utils.DAY+" "+entry.getDateTakeKey()+" as "+entry.getTimeTakeKey();
+        String dtt = Utils.DAY+" "+entry.getDateTimeTakeKey();
         viewHolder.dateTimeTaked.setText(dtt);
 
         //Set Nome de quem devolveu a chave
@@ -95,11 +95,11 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
         viewHolder.nameUserBacked.setText(nubk);
 
         //Set Data e Hora da devolução
-        String dtb = Utils.DAY+" "+entry.getDateBackKey()+" as "+entry.getTimeBackKey();
+        String dtb = Utils.DAY+" "+entry.getDateTimeBackKey();
         viewHolder.dateTimeBacked.setText(dtb);
 
         //Mudar cor se a chave não foi devolvida
-        if (entry.getDateBackKey() == null) {
+        if (entry.getDateTimeBackKey() == null) {
             viewHolder.nameUserBacked.setText(Utils.NO_BACKED);
             viewHolder.dateTimeBacked.setText("");
             viewHolder.backgroundItemListEntry.setOnClickListener(view -> openActivity(view, entry));
@@ -114,7 +114,7 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
 
     private void openActivity(View view, Entry entry) {
 
-        UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
+        /*UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
         User user = userDAO.consultUser(entry.getMatUserTakeKey());
 
         if (user != null) {
@@ -131,7 +131,7 @@ public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.ViewHolder> 
                     MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN),
                     3000);
 
-        }
+        }*/
     }
 }
 

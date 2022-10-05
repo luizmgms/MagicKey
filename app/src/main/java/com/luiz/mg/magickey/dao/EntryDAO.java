@@ -153,12 +153,12 @@ public class EntryDAO {
             String timeBacked = cursor.getString(
                     cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME_BACK));
 
-            Entry entry = new Entry(nameKey,
+            /*Entry entry = new Entry(nameKey,
                     matUserTaked, nameUserTaked, dateTaked, timeTaked,
                     matUserBacked, nameUserBacked, dateBacked, timeBacked
-            );
+            );*/
 
-            entries.add(entry);
+            //entries.add(entry);
 
         }
 
@@ -217,13 +217,13 @@ public class EntryDAO {
                     cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME_BACK));
 
 
-            Entry entry = new Entry(
+            /*Entry entry = new Entry(
                     nameKey,
                     matUserTaked, nameUserTaked, dateTake, timeTaked,
                     matUserBacked, nameUserBacked, dateBacked, timeBacked
-            );
+            );*/
 
-            entries.add(entry);
+            //entries.add(entry);
 
         }
 
@@ -285,13 +285,13 @@ public class EntryDAO {
             String timeBacked = cursor.getString(
                     cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME_BACK));
 
-            Entry entry = new Entry(
+            /*Entry entry = new Entry(
                     nameKey,
                     matUserTaked, nameUserTaked, dateTake, timeTaked,
                     matUserBacked, nameUserBacked, dateBacked, timeBacked
             );
 
-            entries.add(entry);
+            entries.add(entry);*/
 
         }
 
@@ -353,13 +353,13 @@ public class EntryDAO {
             String timeBacked = cursor.getString(
                     cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_TIME_BACK));
 
-            Entry entry = new Entry(
+           /* Entry entry = new Entry(
                     nameKey,
                     matUserTaked, nameUserTaked, dateTake, timeTaked,
                     matUserBacked, nameUserBacked, dateBacked, timeBacked
             );
 
-            entries.add(entry);
+            entries.add(entry);*/
 
         }
 

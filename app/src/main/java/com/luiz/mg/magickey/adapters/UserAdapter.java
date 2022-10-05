@@ -95,7 +95,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     private void deleteUser(Context context, int pos) {
 
-        UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
+        /*UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
 
         int status = userDAO.deleteUser(listUsers.get(pos).getMat());
 
@@ -105,7 +105,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             listUsers.remove(pos);
             notifyItemRemoved(pos);
             Toast.makeText(context, R.string.user_deleted, Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     // Return the size of your dataset (invoked by the layout manager)

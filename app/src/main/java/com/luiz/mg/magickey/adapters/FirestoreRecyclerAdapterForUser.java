@@ -15,7 +15,7 @@ import com.luiz.mg.magickey.R;
 import com.luiz.mg.magickey.models.User;
 
 public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<User,
-        FirestoreRecyclerAdapterForUser.ViewHolder> {
+        FirestoreRecyclerAdapterForUser.UserViewHolder> {
 
     public FirestoreRecyclerAdapterForUser(@NonNull FirestoreRecyclerOptions<User> options) {
         super(options);
@@ -24,36 +24,35 @@ public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<Us
 
 
     @Override
-    protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull User user) {
+    protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
 
         holder.mat.setText(user.getMat());
         holder.name.setText(user.getName());
         holder.dept.setText(user.getDept());
-        holder.constraintLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        holder.constraintLayout.setOnClickListener(view -> {
 
-            }
         });
 
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_item_list_users, parent, false);
-        return new ViewHolder(view);
+        View view = LayoutInflater.from(parent.getContext()).inflate(
+                R.layout.layout_item_list_users, parent, false);
+
+        return new UserViewHolder(view);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class UserViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView mat;
         private final TextView name;
         private final TextView dept;
         private final ConstraintLayout constraintLayout;
 
-        public ViewHolder(@NonNull View itemView) {
+        public UserViewHolder(@NonNull View itemView) {
             super(itemView);
 
             mat = itemView.findViewById(R.id.matId);

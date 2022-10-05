@@ -98,6 +98,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 }
 
             }
+
         );
 
     @Override
@@ -247,7 +248,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 .setQuery(query, Key.class)
                 .build();
 
-        //FirestoreRecyclerAdapter para Usuário
+        //FirestoreRecyclerAdapter para Chave
         adapterKey = new FirestoreRecyclerAdapterForKey(optionsKey);
 
         rViewOfListKey.setAdapter(adapterKey);
