@@ -14,7 +14,10 @@
     <color name="red">#F44336</color>
     <color name="red_alfha">#B7F44336</color>
     <color name="color_fab">#1976D2</color>
+    <color name="blue_1">#1976D2</color>
+    <color name="red_1">#C51162</color>
     <color name="red_background_color_entry_key">#FFC1BD</color>
     <color name="green_dark">#124E00</color>
     <color name="color_hint">#616161</color>
+    <color name="blue_2">#0091EA</color>
 </resources>

@@ -14,16 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.luiz.mg.magickey.MainActivity;
 import com.luiz.mg.magickey.R;
 import com.luiz.mg.magickey.models.Entry;
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
+import com.luiz.mg.magickey.utils.Utils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,8 +36,6 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
         this.user = user;
 
     }
-
-
 
     @Override
     protected void onBindViewHolder(@NonNull KeyViewHolder holder, int position, @NonNull Key key) {
@@ -62,7 +57,6 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
             colorBackgroundBtn = holder.btnTakeOrBack.getContext()
                     .getResources().getColor(R.color.red,
                             holder.btnTakeOrBack.getContext().getTheme());
-
 
         } else {
 
@@ -89,10 +83,13 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
             if (key.getBorr()) {
 
+                String text = Utils.BORR + " a " + key.getMatBorr();///< colocar nome também
+                holder.borr.setText(text);
                 holder.btnTakeOrBack.setOnClickListener(view -> {
                     /*devolver*/
                     backKey(key, user, holder.btnTakeOrBack.getContext(), "devolver");
                 });
+
             } else {
                 holder.btnTakeOrBack.setOnClickListener(view -> {
                     /*pegar*/
@@ -205,7 +202,6 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
                 } ).addOnFailureListener(e ->
                         Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
                                 Toast.LENGTH_SHORT).show());
-
 
     }
 

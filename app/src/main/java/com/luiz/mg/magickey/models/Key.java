@@ -5,13 +5,15 @@ public class Key {
     private String name;
     private String dept;
     private boolean borr;
+    private String matBorr;
 
     public Key() {}
 
-    public Key(String name, String dept, boolean borrowed) {
+    public Key(String name, String dept, boolean borrowed, String matBorr) {
         this.name = name;
         this.dept = dept;
         this.borr = borrowed;
+        this.matBorr = matBorr;
     }
 
     public String getName() {
@@ -36,5 +38,13 @@ public class Key {
 
     public void setBorr(boolean borrowed) {
         this.borr = borrowed;
+    }
+
+    public String getMatBorr() {
+        return matBorr;
+    }
+
+    public void setMatBorr(String matBorr) {
+        this.matBorr = matBorr;
     }
 }

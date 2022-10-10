@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.firestore.Query;
+import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForEntry;
 import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForKey;
 import com.luiz.mg.magickey.adapters.KeyAdapter;
 import com.luiz.mg.magickey.dao.EntryDAO;
@@ -43,10 +44,10 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
     KeyDAO keyDAO;
     ArrayList<Entry> listEntryOfUser;
     ArrayList<Key> listAllKeys;
-    ArrayList<Key> listKeysOfDeptOfUser;
     FirestoreRecyclerAdapterForKey adapterAllKeys;
-    RecyclerView recyclerViewListOfKeysOfUser;
-    RecyclerView recyclerViewAllKeys;
+    FirestoreRecyclerAdapterForEntry adapterEntryUser;
+    RecyclerView rViewListKeysUser;
+    RecyclerView rViewAllKeys;
     TextView tvListEmptyId;
     SwitchCompat switchSector;
     String sDigited = "";
@@ -65,10 +66,10 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         tvListEmptyId = findViewById(R.id.tvListEmptyId);
 
         //Recycler View da lista das chaves que usuário pegou emprestado
-        recyclerViewListOfKeysOfUser = findViewById(R.id.reclyclerListOfKeysOfUserId);
+        rViewListKeysUser = findViewById(R.id.reclyclerListOfKeysOfUserId);
 
         //RecyclerView de todas as Chaves
-        recyclerViewAllKeys = findViewById(R.id.listOthersKeysId);
+        rViewAllKeys = findViewById(R.id.listOthersKeysId);
 
         //Layout do BottomSheet Outras Chaves
         ConstraintLayout layoutBottomSheet = findViewById(R.id.layoutBottomSheetYoursKeysId);
@@ -91,6 +92,9 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         //Setendo View com nome do usuário
         nameOfUser.setText(splitName[0]);
 
+        //Popular Lista de chaves que o usuário pegou emprestado
+        setViewListKeysUser(user);
+
         //Popular Lista com todas as chaves
         setViewListAllKeys();
 
@@ -109,14 +113,14 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
         /* RecyclerViews */
         //Setando RecyclerView da lista da chaves que o usuário pegou e não devolveu
-        recyclerViewListOfKeysOfUser.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerViewListOfKeysOfUser.addItemDecoration(
+        rViewListKeysUser.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        rViewListKeysUser.addItemDecoration(
                 new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         //Adapter
         //keyAdapter = new KeyAdapter(
         //        getListKeysOfUser(listEntryOfUser), user, true, getApplicationContext(), MainActivity.dbHelper);
-        //recyclerViewListOfKeysOfUser.setAdapter(keyAdapter);
-        recyclerViewListOfKeysOfUser.setHasFixedSize(true);
+        //rViewListKeysUser.setAdapter(keyAdapter);
+        rViewListKeysUser.setHasFixedSize(true);
 
 
 
@@ -140,7 +144,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         switchSector.setOnCheckedChangeListener((compoundButton, b) -> {
             if (b) {
                 etSearch.clearFocus();
-                setListKeysOfSetorOfUser(listKeysOfDeptOfUser);
+
             } else {
                 if (!sDigited.equals("")) {
                     //setListAllKeys(getListKeysSearch(listAllKeys));
@@ -177,24 +181,33 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
             return k.getDept();
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private void setListKeysOfSetorOfUser(ArrayList<Key> listKeys) {
-        /*recyclerViewAllKeys.setAdapter(
-                new KeyAdapter(
-                        listKeys, user, false, getApplicationContext(), MainActivity.dbHelper
-                )
-        );
-        Objects.requireNonNull(recyclerViewAllKeys.getAdapter()).notifyDataSetChanged();*/
+    private void setViewListKeysUser(User u) {
+
+        rViewListKeysUser.setLayoutManager(new LinearLayoutManagerWrapper(this));
+        rViewListKeysUser.addItemDecoration(
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        rViewListKeysUser.setHasFixedSize(true);
+
+        Query query = MainActivity.db.collection("entry")
+                .whereEqualTo("matUserTakeKey", u.getMat())
+                .whereEqualTo("matUserBackKey", "");
+
+        FirestoreRecyclerOptions<Entry> optionsEntry =
+                new FirestoreRecyclerOptions.Builder<Entry>().setQuery(query, Entry.class).build();
+
+        adapterEntryUser = new FirestoreRecyclerAdapterForEntry(optionsEntry);
+
+        rViewListKeysUser.setAdapter(adapterEntryUser);
+
     }
 
     //Lista de todas as chaves
-    @SuppressLint("NotifyDataSetChanged")
     private void setViewListAllKeys() {
 
-        recyclerViewAllKeys.setLayoutManager( new LinearLayoutManagerWrapper(this));
-        recyclerViewAllKeys.addItemDecoration(
-                new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
-        recyclerViewAllKeys.setHasFixedSize(true);
+        rViewAllKeys.setLayoutManager(new LinearLayoutManagerWrapper(this));
+        rViewAllKeys.addItemDecoration(
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        rViewAllKeys.setHasFixedSize(true);
 
         Query query = MainActivity.db.collection("keys");
 
@@ -205,7 +218,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
         //FirestoreRecyclerAdapter para Chave
         adapterAllKeys = new FirestoreRecyclerAdapterForKey(optionsKey, user);
-        recyclerViewAllKeys.setAdapter(adapterAllKeys);
+        rViewAllKeys.setAdapter(adapterAllKeys);
 
     }
 
@@ -213,13 +226,13 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
     @SuppressLint("NotifyDataSetChanged")
     private void setViewListKeysUserTaked(ArrayList<Key> list) {
 
-        /*recyclerViewListOfKeysOfUser.setAdapter(
+        /*rViewListKeysUser.setAdapter(
                 new KeyAdapter(
                         list, user, true, getApplicationContext(), MainActivity.dbHelper
                 )
         );*/
 
-        Objects.requireNonNull(recyclerViewListOfKeysOfUser.getAdapter()).notifyDataSetChanged();
+        Objects.requireNonNull(rViewListKeysUser.getAdapter()).notifyDataSetChanged();
 
     }
 
@@ -346,12 +359,14 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        adapterEntryUser.startListening();
         adapterAllKeys.startListening();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        adapterEntryUser.stopListening();
         adapterAllKeys.stopListening();
     }
 }

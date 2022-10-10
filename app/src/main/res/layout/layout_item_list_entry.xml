@@ -17,7 +17,7 @@
         android:text="@string/name_key"
         android:textStyle="bold"
         android:textSize="@dimen/tam_name_key_entry"
-        android:textColor="@color/black"
+        android:textColor="@color/red_1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,7 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/name_user_taked"
-        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textColor="@color/green_dark"
         android:layout_marginEnd="@dimen/marg_text"
         android:textSize="@dimen/tam_name_user_entry"
         app:layout_constraintTop_toBottomOf="@id/nameOfKeyId"
@@ -37,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/taked"
-        android:textColor="@color/black"
+        android:textColor="@color/green_dark"
         app:layout_constraintStart_toStartOf="@id/nameOfUserTakedKeyId"
         app:layout_constraintTop_toBottomOf="@id/nameOfUserTakedKeyId" />
 
@@ -48,7 +49,8 @@
         android:text="@string/name_user_backed"
         android:layout_marginEnd="@dimen/marg_text"
         android:textSize="@dimen/tam_name_user_entry"
-        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textColor="@color/blue_1"
         app:layout_constraintTop_toBottomOf="@id/dateTimeTakedKeyId"
         app:layout_constraintStart_toStartOf="@id/nameOfKeyId" />
 
@@ -57,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/backed"
-        android:textColor="@color/black"
+        android:textColor="@color/blue_1"
         app:layout_constraintStart_toStartOf="@id/nameOfUserBackedKeyId"
         app:layout_constraintTop_toBottomOf="@id/nameOfUserBackedKeyId" />
 

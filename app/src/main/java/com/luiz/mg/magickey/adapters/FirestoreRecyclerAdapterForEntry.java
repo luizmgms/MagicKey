@@ -1,5 +1,6 @@
 package com.luiz.mg.magickey.adapters;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,25 +36,37 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         String dtt = Utils.DAY+" "+entry.getDateTimeTakeKey();
         holder.dateTimeTakeKey.setText(dtt);
 
+        String textNameUserBackKey;
+        String textDateTimeBackKey;
+        int colorTextBackKey, colorBackground;
+
         if (entry.getNameUserBackKey().equals("")) {
 
-            holder.nameUserBackKey.setText(R.string.no_back);
-            holder.nameUserBackKey.setTextColor(holder.nameUserBackKey.getContext().getResources()
-                    .getColor(R.color.red, null));
-            holder.constraintLayout.setBackgroundColor(holder.constraintLayout.getContext()
-                    .getResources().getColor(R.color.red_background_color_entry_key, null));
-            holder.dateTimeBackKey.setText("");
+            textNameUserBackKey = holder.nameUserBackKey.getContext().getResources()
+                    .getString(R.string.no_back);
+            colorTextBackKey = holder.nameUserBackKey.getContext().getResources()
+                    .getColor(R.color.red, holder.nameUserBackKey.getContext().getTheme());
+            textDateTimeBackKey = "";
+            colorBackground = holder.constraintLayout.getContext()
+                    .getResources().getColor(R.color.red_background_color_entry_key,
+                            holder.constraintLayout.getContext().getTheme());
 
         } else {
 
-            String nubk = Utils.BACKED+" "+entry.getNameUserBackKey();
-            holder.nameUserBackKey.setText(nubk);
-            holder.constraintLayout.setBackgroundColor(holder.constraintLayout.getContext()
-                    .getResources().getColor(R.color.green_background_color_entry_key, null));
-            String dtb = Utils.DAY+" "+entry.getDateTimeBackKey();
-            holder.dateTimeBackKey.setText(dtb);
+            textNameUserBackKey = Utils.BACKED+" "+entry.getNameUserBackKey();
+            colorTextBackKey = holder.dateTimeBackKey.getContext().getResources().getColor(
+                    R.color.blue_1, holder.dateTimeBackKey.getContext().getTheme());
+            textDateTimeBackKey = Utils.DAY+" "+entry.getDateTimeBackKey();
+            colorBackground = holder.constraintLayout.getContext()
+                    .getResources().getColor(R.color.green_background_color_entry_key,
+                            holder.constraintLayout.getContext().getTheme());
 
         }
+
+        holder.nameUserBackKey.setText(textNameUserBackKey);
+        holder.nameUserBackKey.setTextColor(colorTextBackKey);
+        holder.dateTimeBackKey.setText(textDateTimeBackKey);
+        holder.constraintLayout.setBackgroundColor(colorBackground);
 
     }
 
