@@ -200,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void logIn(){
+
         if (userId.equals("")) {
 
             showAlert("Campo Vazio!", "Entre com o Nº de sua Matrícula ou CPF");
@@ -214,16 +215,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .whereEqualTo("mat", userId)
                 .get()
                 .addOnCompleteListener(task -> {
+
                     if (task.isSuccessful()) {
 
                         if (task.getResult().isEmpty()) {
+
                             userId = "";
                             textViewUserId.setText(userId);
                             progressBar.setVisibility(View.INVISIBLE);
                             showAlert("Erro de Login!", "Usuário não encontrado!");
+
                         } else {
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
+
                                 Log.d("appkey", document.getId() + " => "
                                         + document.getData());
 
@@ -236,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             }
                         }
+
                     } else {
 
                         userId = "";

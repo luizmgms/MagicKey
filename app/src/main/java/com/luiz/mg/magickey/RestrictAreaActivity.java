@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,38 +23,23 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForKey;
 import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForUser;
-import com.luiz.mg.magickey.adapters.KeyAdapter;
-import com.luiz.mg.magickey.adapters.UserAdapter;
-import com.luiz.mg.magickey.dao.KeyDAO;
-import com.luiz.mg.magickey.dao.UserDAO;
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.DialogButtonClickWrapper;
+import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.PathUtil;
-import com.luiz.mg.magickey.utils.ReadFile;
 import com.luiz.mg.magickey.utils.Utils;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class RestrictAreaActivity extends AppCompatActivity implements View.OnClickListener,
@@ -67,7 +51,6 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     private boolean isLotUsers = true;
     private String dept = Utils.sector;
 
-    FirebaseFirestore db;
     FirestoreRecyclerAdapterForUser adapterUser;
     FirestoreRecyclerAdapterForKey adapterKey;
 
@@ -88,13 +71,15 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                     if (isLotUsers) {
                         //Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
                         //addUsersLot(path);
-                    }
-                    else {
+                    } else {
                         //addKeysLot(path);
                     }
 
                 } else {
-                    Toast.makeText(this, "Arquivo Inválido! Escolha um arquivo .csv", Toast.LENGTH_LONG).show();
+
+                    Toast.makeText(this, "Arquivo Inválido! Escolha um arquivo .csv",
+                            Toast.LENGTH_LONG).show();
+
                 }
 
             }
@@ -105,9 +90,6 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resctrict_area);
-
-        //Banco de Dados
-        db = FirebaseFirestore.getInstance();
 
         //Título da Lista
         titleList = findViewById(R.id.titleListId);
@@ -214,11 +196,11 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         //Lista de Usuários
         rViewOfListUser = findViewById(R.id.listUserId);
         rViewOfListUser.setHasFixedSize(true);
-        rViewOfListUser.setLayoutManager(new LinearLayoutManager(this));
+        rViewOfListUser.setLayoutManager(new LinearLayoutManagerWrapper(this));
         rViewOfListUser.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL));
 
-        Query query = db.collection("users");
+        Query query = MainActivity.db.collection("users");
 
         //FirebaseRecyclerOptions
         FirestoreRecyclerOptions<User> optionsUsers = new FirestoreRecyclerOptions.Builder<User>()
@@ -237,11 +219,11 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         //Lista de Chaves
         rViewOfListKey = findViewById(R.id.listKeyId);
         rViewOfListKey.setHasFixedSize(true);
-        rViewOfListKey.setLayoutManager(new LinearLayoutManager(this));
+        rViewOfListKey.setLayoutManager(new LinearLayoutManagerWrapper(this));
         rViewOfListKey.addItemDecoration( new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL));
 
-        Query query = db.collection("keys");
+        Query query = MainActivity.db.collection("keys");
 
         //FirebaseRecyclerOptions
         FirestoreRecyclerOptions<Key> optionsKey = new FirestoreRecyclerOptions.Builder<Key>()
@@ -249,7 +231,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 .build();
 
         //FirestoreRecyclerAdapter para Chave
-        adapterKey = new FirestoreRecyclerAdapterForKey(optionsKey);
+        adapterKey = new FirestoreRecyclerAdapterForKey(optionsKey, null);
 
         rViewOfListKey.setAdapter(adapterKey);
 
@@ -306,7 +288,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
             @Override
             protected boolean onClicked() {
-                return addNewUser(itMatUser, itNameUser, spinner, dialog);//Retornando true fecha o dialog
+                return addNewUser(itMatUser, itNameUser, dialog);//Retornando true fecha o dialog
             }
         });
 
@@ -369,21 +351,22 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     private void consultUser (User user, AlertDialog dialog) {
 
-        db.collection("users")
-                .whereEqualTo("mat", user.getMat())
+        MainActivity.db.collection("users")
+                .document(user.getMat())
                 .get()
                 .addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
 
-                        if (task.getResult().isEmpty()) {
-
-                            addUserInDatabase(user, dialog);
-
-                        } else {
+                        if (task.getResult().exists()) {
 
                             Toast.makeText(this, R.string.user_exists, Toast.LENGTH_SHORT)
                                     .show();
+
+                        } else {
+
+                            addUserInDatabase(user, dialog);
+
                         }
 
                     } else {
@@ -397,7 +380,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     private void consultKey (Key key, AlertDialog dialog) {
 
-        db.collection("keys")
+        MainActivity.db.collection("keys")
                 .whereEqualTo("name", key.getName())
                 .get()
                 .addOnCompleteListener(task -> {
@@ -427,20 +410,20 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     private void addKeyInDatabase(Key key, AlertDialog dialog) {
 
-        db.collection("keys").add(key)
+        MainActivity.db.collection("keys").document(key.getName()).set(key)
             .addOnSuccessListener(documentReference -> {
 
                 dialog.dismiss();
                 Toast.makeText(this, R.string.add_key_succes, Toast.LENGTH_SHORT).show();
 
             }).addOnFailureListener(e -> Toast.makeText(this, R.string.add_key_erro,
-                    Toast.LENGTH_SHORT).show());
+                        Toast.LENGTH_SHORT).show());
 
     }
 
     private void addUserInDatabase(User user, AlertDialog dialog) {
 
-        db.collection("users").add(user)
+        MainActivity.db.collection("users").document(user.getMat()).set(user)
             .addOnSuccessListener(documentReference -> {
 
                 dialog.dismiss();
@@ -451,7 +434,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private boolean addNewUser(TextInputEditText mat, TextInputEditText name, Spinner spinner, AlertDialog dialog) {
+    private boolean addNewUser(TextInputEditText mat, TextInputEditText name, AlertDialog dialog) {
 
         if (Objects.requireNonNull(mat.getText()).toString().equals("")) {
 
@@ -467,6 +450,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
             Toast.makeText(getApplicationContext(),
                     R.string.dept_require, Toast.LENGTH_LONG).show();
+
             return false;
 
         } else { //Todos os campos foram preenchidos

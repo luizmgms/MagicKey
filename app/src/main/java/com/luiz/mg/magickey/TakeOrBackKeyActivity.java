@@ -1,5 +1,7 @@
 package com.luiz.mg.magickey;
 
+import static com.luiz.mg.magickey.MainActivity.db;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,7 +18,10 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.firebase.firestore.Query;
+import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForKey;
 import com.luiz.mg.magickey.adapters.KeyAdapter;
 import com.luiz.mg.magickey.dao.EntryDAO;
 import com.luiz.mg.magickey.dao.KeyDAO;
@@ -24,6 +29,7 @@ import com.luiz.mg.magickey.db.FeedReaderDbHelper;
 import com.luiz.mg.magickey.models.Entry;
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
+import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.Utils;
 
 import java.util.ArrayList;
@@ -35,11 +41,10 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
     private BottomSheetBehavior bottomSheetBehavior;
     User user;
     KeyDAO keyDAO;
-    EntryDAO entryDAO;
     ArrayList<Entry> listEntryOfUser;
     ArrayList<Key> listAllKeys;
     ArrayList<Key> listKeysOfDeptOfUser;
-    KeyAdapter keyAdapter;
+    FirestoreRecyclerAdapterForKey adapterAllKeys;
     RecyclerView recyclerViewListOfKeysOfUser;
     RecyclerView recyclerViewAllKeys;
     TextView tvListEmptyId;
@@ -55,16 +60,22 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         /* Views */
         //TextView Nome do usuário logado
         TextView nameOfUser = findViewById(R.id.nameOfUserId);
+
         //TextView se Lista de chaves vazia
         tvListEmptyId = findViewById(R.id.tvListEmptyId);
+
         //Recycler View da lista das chaves que usuário pegou emprestado
         recyclerViewListOfKeysOfUser = findViewById(R.id.reclyclerListOfKeysOfUserId);
+
         //RecyclerView de todas as Chaves
         recyclerViewAllKeys = findViewById(R.id.listOthersKeysId);
+
         //Layout do BottomSheet Outras Chaves
         ConstraintLayout layoutBottomSheet = findViewById(R.id.layoutBottomSheetYoursKeysId);
+
         //Texto Bottom Pegar/Devolver Outra Chave
         TextView titleOthersKeys = findViewById(R.id.textOtherKeyId);
+
         //Pesquisa
         SearchView etSearch = findViewById(R.id.etSearchKeyId);
 
@@ -80,14 +91,12 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         //Setendo View com nome do usuário
         nameOfUser.setText(splitName[0]);
 
-        //DAOs
-        //entryDAO = new EntryDAO(MainActivity.dbHelper);
-        //keyDAO = new KeyDAO(MainActivity.dbHelper);
-
         //Popular Lista com todas as chaves
-        listAllKeys = new KeyDAO(new FeedReaderDbHelper(getApplicationContext())).listKeys();
-        //Popular Lista de chaves do setor do usuário
-        listKeysOfDeptOfUser = getListKeysOfSetorOfUser(user.getDept(), listAllKeys);
+        setViewListAllKeys();
+
+        //Popular Lista de chaves(entry) que o usuário pegou
+        //setViewListKeysUSerTaked(user);
+
         //Popular lista de Entry do Usuário
         listEntryOfUser = new ArrayList<>();
 
@@ -106,17 +115,10 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         //Adapter
         //keyAdapter = new KeyAdapter(
         //        getListKeysOfUser(listEntryOfUser), user, true, getApplicationContext(), MainActivity.dbHelper);
-        recyclerViewListOfKeysOfUser.setAdapter(keyAdapter);
+        //recyclerViewListOfKeysOfUser.setAdapter(keyAdapter);
         recyclerViewListOfKeysOfUser.setHasFixedSize(true);
 
-        //Setando RecyclerView da lista de todas as chaves
-        recyclerViewAllKeys.setLayoutManager( new LinearLayoutManager(getApplicationContext()));
-        recyclerViewAllKeys.addItemDecoration(
-                new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
-        //keyAdapter = new KeyAdapter(
-         //       listAllKeys, user, false, getApplicationContext(), MainActivity.dbHelper);
-        recyclerViewAllKeys.setAdapter(keyAdapter);
-        recyclerViewAllKeys.setHasFixedSize(true);
+
 
 
         /* BottomSheet */
@@ -141,9 +143,9 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
                 setListKeysOfSetorOfUser(listKeysOfDeptOfUser);
             } else {
                 if (!sDigited.equals("")) {
-                    setListAllKeys(getListKeysSearch(listAllKeys));
+                    //setListAllKeys(getListKeysSearch(listAllKeys));
                 } else {
-                    setListAllKeys(listAllKeys);
+                    //setListAllKeys(listAllKeys);
                 }
             }
 
@@ -187,18 +189,29 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
     //Lista de todas as chaves
     @SuppressLint("NotifyDataSetChanged")
-    private void setListAllKeys(ArrayList<Key> list) {
-        /*recyclerViewAllKeys.setAdapter(
-                new KeyAdapter(
-                        list, user, false, getApplicationContext(), MainActivity.dbHelper
-                )
-        );
-        Objects.requireNonNull(recyclerViewAllKeys.getAdapter()).notifyDataSetChanged();*/
+    private void setViewListAllKeys() {
+
+        recyclerViewAllKeys.setLayoutManager( new LinearLayoutManagerWrapper(this));
+        recyclerViewAllKeys.addItemDecoration(
+                new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
+        recyclerViewAllKeys.setHasFixedSize(true);
+
+        Query query = MainActivity.db.collection("keys");
+
+        //FirebaseRecyclerOptions
+        FirestoreRecyclerOptions<Key> optionsKey = new FirestoreRecyclerOptions.Builder<Key>()
+                .setQuery(query, Key.class)
+                .build();
+
+        //FirestoreRecyclerAdapter para Chave
+        adapterAllKeys = new FirestoreRecyclerAdapterForKey(optionsKey, user);
+        recyclerViewAllKeys.setAdapter(adapterAllKeys);
+
     }
 
     //Setar Lista de chaves que estão sobre posse do usuário
     @SuppressLint("NotifyDataSetChanged")
-    private void setListKeysOfUser(ArrayList<Key> list) {
+    private void setViewListKeysUserTaked(ArrayList<Key> list) {
 
         /*recyclerViewListOfKeysOfUser.setAdapter(
                 new KeyAdapter(
@@ -231,7 +244,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
                         }
                     }
 
-                    setListAllKeys(listSearch);
+                    //setListAllKeys(listSearch);
                     return false;
                 }
             }
@@ -261,9 +274,9 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
                     // ... Set Lista das chaves que pegou
 
-                    listEntryOfUser.clear();
-                    listEntryOfUser = entryDAO.listEntriesOfUser(user.getMat());
-                    setListKeysOfUser(getListKeysOfUser(listEntryOfUser));
+                    //listEntryOfUser.clear();
+                    //listEntryOfUser = entryDAO.listEntriesOfUser(user.getMat());
+                    //setListKeysOfUser(getListKeysOfUser(listEntryOfUser));
 
                     Log.d("appkeys", "BottomSheet TODAS AS CHAVES - COLLAPSED");
 
@@ -271,29 +284,29 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
                 } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
 
                     // ... Se filtro do setor ativo, ...
-                    if (switchSector.isChecked()) {
+                    if (switchSector.isChecked()) { /*
 
                         //... Set lista com as chaves do setor do usuário
                         listKeysOfDeptOfUser.clear();
                         listKeysOfDeptOfUser = keyDAO.listKeys(user.getDept());
-                        setListKeysOfSetorOfUser(listKeysOfDeptOfUser);
+                        setListKeysOfSetorOfUser(listKeysOfDeptOfUser);*/
 
                     } else { // ... Senão, ...
 
                         //Se String de pesquisa é diferente de vazia, ...
-                        if (!sDigited.isEmpty()) {
+                        if (!sDigited.isEmpty()) {/*
 
                             //Set lista com chaves pesquisada
                             listAllKeys.clear();
                             listAllKeys = keyDAO.listKeys();
-                            setListAllKeys(getListKeysSearch(listAllKeys));
+                            setListAllKeys(getListKeysSearch(listAllKeys));*/
 
                         } else { //... Senão, ...
 
-                            // ... Set lista com todas as chaves
+                           /* // ... Set lista com todas as chaves
                             listAllKeys.clear();
                             listAllKeys = new ArrayList<>();
-                            setListAllKeys(listAllKeys);
+                            setListAllKeys(listAllKeys);*/
 
                         }
                     }
@@ -330,4 +343,15 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapterAllKeys.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapterAllKeys.stopListening();
+    }
 }
