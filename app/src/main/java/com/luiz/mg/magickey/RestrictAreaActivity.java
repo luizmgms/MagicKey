@@ -482,7 +482,8 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         } else {
 
-            Key key = new Key(nameKey.getText().toString(), dept, false, "");
+            Key key = new Key(
+                    nameKey.getText().toString(), dept, false, "", "");
             consultKey(key, dialog);
 
             return false;

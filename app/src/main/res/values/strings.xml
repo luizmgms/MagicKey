@@ -106,6 +106,7 @@
     <string name="key_exists">Chave já está cadastrada!</string>
     <string name="user_exists">Usuário já cadastrado!</string>
     <string name="no_back">Não Devolvida!</string>
+    <string name="developer">Desenvolvido pela Coordenação de Tecnologia da Informação do IFPI - Paulistana</string>
     <string-array name="depts_array">
         <item>-- Setor --</item>
         <item>CTI</item>

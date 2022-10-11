@@ -1,10 +1,12 @@
 package com.luiz.mg.magickey.adapters;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -12,20 +14,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.luiz.mg.magickey.MainActivity;
 import com.luiz.mg.magickey.R;
 import com.luiz.mg.magickey.models.Entry;
+import com.luiz.mg.magickey.models.Key;
+import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.Utils;
 
 public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<Entry,
         FirestoreRecyclerAdapterForEntry.EntryViewHolder> {
 
+    User user;
 
-    public FirestoreRecyclerAdapterForEntry(@NonNull FirestoreRecyclerOptions<Entry> options) {
+
+    public FirestoreRecyclerAdapterForEntry(@NonNull FirestoreRecyclerOptions<Entry> options,
+                                            User user) {
         super(options);
+
+        this.user = user;
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull EntryViewHolder holder, int position, @NonNull Entry entry) {
+    protected void onBindViewHolder(@NonNull EntryViewHolder holder, int position,
+                                    @NonNull Entry entry) {
 
         String nok = Utils.KEY+" "+entry.getNameKey();
         holder.nameKey.setText(nok);
@@ -68,6 +80,37 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         holder.dateTimeBackKey.setText(textDateTimeBackKey);
         holder.constraintLayout.setBackgroundColor(colorBackground);
 
+        if (user != null) {
+
+            holder.btnBackKey.setVisibility(View.VISIBLE);
+            holder.btnBackKey.setOnClickListener(view ->
+                    backKey(entry.getNameKey(), user, holder.btnBackKey.getContext()));
+            String text = "Entregue a você.";
+            holder.nameUserTakeKey.setText(text);
+
+        } else {
+            holder.btnBackKey.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    private void backKey(String nameKey, User u, Context ctx) {
+        MainActivity.db.collection("keys").document(nameKey)
+        .get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                Key k = document.toObject(Key.class);
+                if (document.exists() && k != null) {
+                    FirestoreRecyclerAdapterForKey.backKey(k,u, ctx, "devolver");
+                } else {
+                    Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
 
     @NonNull
@@ -87,6 +130,7 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         private final TextView dateTimeTakeKey;
         private final TextView nameUserBackKey;
         private final TextView dateTimeBackKey;
+        private final Button btnBackKey;
         private final ConstraintLayout constraintLayout;
 
         public EntryViewHolder(@NonNull View itemView){
@@ -97,6 +141,7 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
             dateTimeTakeKey = itemView.findViewById(R.id.dateTimeTakedKeyId);
             nameUserBackKey = itemView.findViewById(R.id.nameOfUserBackedKeyId);
             dateTimeBackKey = itemView.findViewById(R.id.dateTimeBackedKeyId);
+            btnBackKey = itemView.findViewById(R.id.btnBackKeyId);
             constraintLayout = itemView.findViewById(R.id.backgroundItemListEntryId);
 
         }

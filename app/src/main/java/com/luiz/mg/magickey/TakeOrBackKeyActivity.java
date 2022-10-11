@@ -88,6 +88,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
         //Criando objeto usuário
         user = new User(mat, name, dept);
+
         String[] splitName = name.split(" ");
         //Setendo View com nome do usuário
         nameOfUser.setText(splitName[0]);
@@ -195,7 +196,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         FirestoreRecyclerOptions<Entry> optionsEntry =
                 new FirestoreRecyclerOptions.Builder<Entry>().setQuery(query, Entry.class).build();
 
-        adapterEntryUser = new FirestoreRecyclerAdapterForEntry(optionsEntry);
+        adapterEntryUser = new FirestoreRecyclerAdapterForEntry(optionsEntry, user);
 
         rViewListKeysUser.setAdapter(adapterEntryUser);
 

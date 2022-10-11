@@ -121,7 +121,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         recyclerListOfEntry.setHasFixedSize(true);
 
-        Query query = db.collection("entry");
+        Query query = db.collection("entry")
+                .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
 
         //FirebaseRecyclerOptions
         FirestoreRecyclerOptions<Entry> optionsEntry = new FirestoreRecyclerOptions.Builder<Entry>()
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .build();
 
         //FirestoreRecyclerAdapter para Chave
-        adapterEntry = new FirestoreRecyclerAdapterForEntry(optionsEntry);
+        adapterEntry = new FirestoreRecyclerAdapterForEntry(optionsEntry, null);
 
         recyclerListOfEntry.setAdapter(adapterEntry);
 

@@ -63,5 +63,16 @@
         app:layout_constraintStart_toStartOf="@id/nameOfUserBackedKeyId"
         app:layout_constraintTop_toBottomOf="@id/nameOfUserBackedKeyId" />
 
+    <Button
+        android:id="@+id/btnBackKeyId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/back"
+        android:backgroundTint="@color/blue_1"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

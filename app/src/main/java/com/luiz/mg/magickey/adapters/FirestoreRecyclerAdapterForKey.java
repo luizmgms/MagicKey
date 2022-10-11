@@ -40,17 +40,22 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
     @Override
     protected void onBindViewHolder(@NonNull KeyViewHolder holder, int position, @NonNull Key key) {
 
-        int textBor;
+        String textBor;
+        String nameUser;
         int colorTextBor;
         int textBtn;
         int colorBackgroundBtn;
+
+        nameUser = key.getNameBorr().split(" ")[0] + " " +
+                key.getNameBorr().split(" ")[1];
 
         holder.nameKey.setText(key.getName());
         holder.deptKey.setText(key.getDept());
 
         if (key.getBorr()) {
 
-            textBor = R.string.borrowed;
+            textBor = holder.borr.getContext().getResources().getString(R.string.borrowed)
+                    + " a " + key.getNameBorr();
             colorTextBor = holder.borr.getContext()
                     .getResources().getColor(R.color.red, holder.borr.getContext().getTheme());
             textBtn = R.string.back;
@@ -60,7 +65,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
         } else {
 
-            textBor = R.string.no_bor;
+            textBor = holder.borr.getContext().getResources().getString(R.string.no_bor);
             colorTextBor = holder.borr.getContext()
                     .getResources().getColor(R.color.green, holder.borr.getContext().getTheme());
             textBtn = R.string.take;
@@ -83,18 +88,26 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
             if (key.getBorr()) {
 
-                String text = Utils.BORR + " a " + key.getMatBorr();///< colocar nome também
-                holder.borr.setText(text);
+                if (key.getMatBorr().equals(user.getMat())) {
+                    nameUser = "Você";
+                }
+
+                textBor = Utils.BORR + " a " + nameUser;
+
+                holder.borr.setText(textBor);
+
                 holder.btnTakeOrBack.setOnClickListener(view -> {
                     /*devolver*/
                     backKey(key, user, holder.btnTakeOrBack.getContext(), "devolver");
                 });
 
             } else {
+
                 holder.btnTakeOrBack.setOnClickListener(view -> {
                     /*pegar*/
                     takeKey(key, user, holder.btnTakeOrBack.getContext(), "pegar");
                 });
+
             }
         }
 
@@ -122,7 +135,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
-    public void updateKey(Key key, Context ctx, String message) {
+    public static void updateKey(Key key, Context ctx, String message) {
 
         MainActivity.db.collection("keys").document(key.getName())
             .update("borr", !key.getBorr())
@@ -141,7 +154,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
-    public void backKey(Key key, User user, Context ctx, String message){
+    public static void backKey(Key key, User user, Context ctx, String message){
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dateTimeBackKey = dtf.format(LocalDateTime.now());
@@ -177,7 +190,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
                                 Toast.LENGTH_SHORT).show());
     }
 
-    private void upDateEntry(String idEntry, Key key, User user, String dateTimeBackKey,
+    private static void upDateEntry(String idEntry, Key key, User user, String dateTimeBackKey,
                              Context ctx, String message) {
 
         MainActivity.db.collection("entry").document(idEntry)
