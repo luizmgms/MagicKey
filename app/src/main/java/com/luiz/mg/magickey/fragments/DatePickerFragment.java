@@ -17,11 +17,9 @@ public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
     private final TextView tvDate;
-    private final MainActivity mainActivity;
 
-    public DatePickerFragment(TextView tvDate, MainActivity mainActivity) {
+    public DatePickerFragment(TextView tvDate) {
         this.tvDate = tvDate;
-        this.mainActivity = mainActivity;
     }
 
     @NonNull
@@ -50,8 +48,7 @@ public class DatePickerFragment extends DialogFragment
 
         String date = sDay+"/"+sMonth+"/"+year;
 
-        //tvDate.setText(date);
-        //mainActivity.filter(date);
+        tvDate.setText(date);
 
     }
 }
