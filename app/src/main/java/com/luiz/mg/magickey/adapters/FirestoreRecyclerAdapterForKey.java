@@ -46,9 +46,6 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
         int textBtn;
         int colorBackgroundBtn;
 
-        nameUser = key.getNameBorr().split(" ")[0] + " " +
-                key.getNameBorr().split(" ")[1];
-
         holder.nameKey.setText(key.getName());
         holder.deptKey.setText(key.getDept());
 
@@ -88,6 +85,9 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
             if (key.getBorr()) {
 
+                nameUser = key.getNameBorr().split(" ")[0] + " " +
+                        key.getNameBorr().split(" ")[1];
+
                 if (key.getMatBorr().equals(user.getMat())) {
                     nameUser = "Você";
                 }
@@ -113,7 +113,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
-    public void takeKey(Key key, User user, Context ctx, String message) {
+    public static void takeKey(Key key, User user, Context ctx, String message) {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dateTimeTakeKey = dtf.format(LocalDateTime.now());
@@ -128,17 +128,18 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
         MainActivity.db.collection("entry").add(newEntry)
                 .addOnSuccessListener(documentReference -> {
                     /*updateChave*/
-                    updateKey(key, ctx, message);
+                    updateKey(key, user, ctx, message);
                 }).addOnFailureListener(e ->
                         Toast.makeText(ctx, "Erro ao tentar "+message+ " chave!",
                                 Toast.LENGTH_SHORT).show());
 
     }
 
-    public static void updateKey(Key key, Context ctx, String message) {
+    public static void updateKey(Key key, User u,Context ctx, String message) {
 
         MainActivity.db.collection("keys").document(key.getName())
-            .update("borr", !key.getBorr())
+            .update("borr", !key.getBorr(),
+                    "matBorr", u.getMat(), "nameBorr", u.getName())
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Toast.makeText(ctx, "Sucesso ao "+message+" chave!",
@@ -205,7 +206,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
                     if (task.isSuccessful()) {
 
                         /*updateKey*/
-                        updateKey(key, ctx, message);
+                        updateKey(key, user,ctx, message);
 
                     } else {
                         Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
