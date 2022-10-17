@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     ConstraintLayout progressBar;
 
-    String date, date1;
+    String dateTime, dateTime1;
     String sFilter = "Dia";
 
     Spinner spinnerFilter;
@@ -100,39 +100,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Pegando data do dia
         DateTimeFormatter dtf1 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         DateTimeFormatter dtf2 = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
-        date = dtf1.format(LocalDateTime.now());
-        date1 = dtf2.format(LocalDateTime.now());
+        dateTime = dtf1.format(LocalDateTime.now());
+        dateTime1 = dtf2.format(LocalDateTime.now());
 
         //Setando TextView Date com a data do dia.
         tvDate = findViewById(R.id.dateOfFilterId);
-        tvDate.setText(date.split(" ")[0]);
+        String[] dateTimeSplit = dateTime.split(" ");
+        tvDate.setText(dateTimeSplit[0]);
         tvDate.setOnClickListener(view -> showDatePickerDialog(tvDate));
 
         //Callback da mudança de Estado
         bottomSheetBehavior.addBottomSheetCallback(callbackSheetBehavior());
 
         //RecyclerView de Entry
-        recyclerListOfEntry = findViewById(R.id.listEntryId);
-        recyclerListOfEntry.setLayoutManager(new LinearLayoutManagerWrapper(this));
-        recyclerListOfEntry.addItemDecoration(
-                new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
-        recyclerListOfEntry.setHasFixedSize(true);
-
-        Query query = db.collection("ano").document("2022")
-                .collection("mes").document("10")
-                .collection("dia").document("10")
-                .collection("entry")
-                .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
-
-        //FirebaseRecyclerOptions
-        FirestoreRecyclerOptions<Entry> optionsEntry = new FirestoreRecyclerOptions.Builder<Entry>()
-                .setQuery(query, Entry.class)
-                .build();
-
-        //FirestoreRecyclerAdapter para Chave
-        adapterEntry = new FirestoreRecyclerAdapterForEntry(optionsEntry, null);
-
-        recyclerListOfEntry.setAdapter(adapterEntry);
+        fillListEntry(sFilter);
 
         //Botão Lista de Entradas
         FloatingActionButton floatBtnListOfEntries = findViewById(R.id.btnListAllEntriesId);
@@ -168,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Botão filtar
         Button btnFiltar = findViewById(R.id.btnFilterEntryId);
         btnFiltar.setOnClickListener(view -> {
-            fillListEntry();
+            fillListEntry(sFilter);
         });
 
         //Matrícula
@@ -264,15 +245,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void fillListEntry() {
+    private void fillListEntry(String filter) {
 
         String[] dateTime = tvDate.getText().toString().split(" ");
         String[] date = dateTime[0].split("/");
-        String ano = date[0];
+        String dia = date[0];
         String mes = date[1];
-        String dia = date[2];
+        String ano = date[2];
 
-        adapterEntry.stopListening();
         recyclerListOfEntry = null;
         recyclerListOfEntry = findViewById(R.id.listEntryId);
         recyclerListOfEntry.setLayoutManager(new LinearLayoutManagerWrapper(this));
@@ -280,11 +260,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         recyclerListOfEntry.setHasFixedSize(true);
 
-        Query query = db.collection("ano").document(ano)
-                .collection("mes").document(mes)
-                .collection("dia").document(dia)
-                .collection("entry")
-                .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
+        Query query;
+
+        if (filter.equals(Utils.DAY)) {
+            query = db.collection("entry")
+                    .whereEqualTo("dia", dia)
+                    .whereEqualTo("mes", mes)
+                    .whereEqualTo("ano", ano)
+                    .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
+
+        } else if (filter.equals(Utils.MONTH)) {
+            query = db.collection("entry")
+                    .whereEqualTo("mes", mes)
+                    .whereEqualTo("ano", ano)
+                    .orderBy("dateTimeTakeKey", Query.Direction.ASCENDING);
+        } else {
+            query = db.collection("entry")
+                    .whereEqualTo("ano", ano)
+                    .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
+        }
 
         //FirebaseRecyclerOptions
         FirestoreRecyclerOptions<Entry> optionsEntry = new FirestoreRecyclerOptions.Builder<Entry>()
@@ -415,13 +409,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @SuppressLint("SimpleDateFormat")
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    filter(tvDate.getText().toString());
-                } else if (newState == BottomSheetBehavior.STATE_HIDDEN){
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                     sFilter = Utils.DAY;
-                    spinnerFilter.setSelection(0);
-                    tvDate.setText(date);
-                    filter(date);
+                    String[] dateTimeSplit = dateTime.split(" ");
+                    tvDate.setText(dateTimeSplit[0]);
                 }
             }
 
@@ -437,11 +428,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
-    public void filter(String date) {
-
-    }
-
-
     @Override
     public void onBackPressed() {
         if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED)  {
@@ -453,8 +439,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        //sFilter = adapterView.getItemAtPosition(i).toString();
-        //filter(tvDate.getText().toString());
+        sFilter = adapterView.getItemAtPosition(i).toString();
+        Log.d("appkey", "Filtro: " + sFilter);
     }
 
     @Override

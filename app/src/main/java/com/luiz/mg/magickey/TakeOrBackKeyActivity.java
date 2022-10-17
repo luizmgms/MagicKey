@@ -31,6 +31,8 @@ import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.Utils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class TakeOrBackKeyActivity extends AppCompatActivity {
@@ -100,7 +102,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         nameOfUser.setText(nameUser);
 
         //Popular Lista de chaves que o usuário pegou emprestado
-        setViewListKeysUser(user);
+        setViewListEntryUser(user);
 
         //Popular Lista de todas as chaves
         setViewListAllKeys();
@@ -199,14 +201,18 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
     }
 
     //Lista de chaves que o usuário pegou
-    private void setViewListKeysUser(User u) {
+    private void setViewListEntryUser(User u) {
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String dateTimeTakeKey = dtf.format(LocalDateTime.now());
 
         rViewListKeysUser.setLayoutManager(new LinearLayoutManagerWrapper(this));
         rViewListKeysUser.addItemDecoration(
                 new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         rViewListKeysUser.setHasFixedSize(true);
 
-        Query query = MainActivity.db.collection("entry")
+        Query query = MainActivity.db
+                .collection("entry")
                 .whereEqualTo("matUserTakeKey", u.getMat())
                 .whereEqualTo("matUserBackKey", "");
 

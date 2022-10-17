@@ -8,6 +8,8 @@ public class Entry {
     private String nameUserTakeKey;
     private String dateTimeTakeKey;
 
+    private String dia, mes, ano;
+
     private String matUserBackKey;
     private String nameUserBackKey;
     private String dateTimeBackKey;
@@ -18,10 +20,19 @@ public class Entry {
     public Entry(String nameKey, String matUserTakeKey, String nameUserTakeKey,
                  String dateTimeTakeKey, String matUserBackKey, String nameUserBackKey,
                  String dateTimeBackKey) {
+
         this.nameKey = nameKey;
+
         this.matUserTakeKey = matUserTakeKey;
         this.nameUserTakeKey = nameUserTakeKey;
         this.dateTimeTakeKey = dateTimeTakeKey;
+
+        String[] dateTime = this.dateTimeTakeKey.split(" ");
+        String[] date = dateTime[0].split("/");
+        this.dia = date[0];
+        this.mes = date[1];
+        this.ano = date[2];
+
         this.matUserBackKey = matUserBackKey;
         this.nameUserBackKey = nameUserBackKey;
         this.dateTimeBackKey = dateTimeBackKey;
@@ -81,5 +92,29 @@ public class Entry {
 
     public void setDateTimeBackKey(String dateTimeBackKey) {
         this.dateTimeBackKey = dateTimeBackKey;
+    }
+
+    public String getDia() {
+        return dia;
+    }
+
+    public void setDia(String dia) {
+        this.dia = dia;
+    }
+
+    public String getMes() {
+        return mes;
+    }
+
+    public void setMes(String mes) {
+        this.mes = mes;
+    }
+
+    public String getAno() {
+        return ano;
+    }
+
+    public void setAno(String ano) {
+        this.ano = ano;
     }
 }
