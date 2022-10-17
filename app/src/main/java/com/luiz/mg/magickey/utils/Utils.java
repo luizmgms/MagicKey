@@ -53,7 +53,7 @@ public class Utils {
      public static final String BORR = "Emprestada";
      public static final String NOT_BORR = "Não Emprestada";
 
-    public static Bitmap screenShot (RecyclerView view) {
+     public static Bitmap screenShot (RecyclerView view) {
           //noinspection rawtypes
           RecyclerView.Adapter adapter = view.getAdapter();
 

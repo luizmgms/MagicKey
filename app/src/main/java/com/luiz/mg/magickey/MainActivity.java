@@ -24,7 +24,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -33,31 +32,25 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.luiz.mg.magickey.adapters.EntryAdapter;
 import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForEntry;
-import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForKey;
-import com.luiz.mg.magickey.dao.EntryDAO;
-import com.luiz.mg.magickey.db.FeedReaderDbHelper;
 import com.luiz.mg.magickey.fragments.DatePickerFragment;
 import com.luiz.mg.magickey.models.Entry;
-import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.reports.MakeFile;
 import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.Utils;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
+    @SuppressLint("StaticFieldLeak")
     public static FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private String userId = "";
@@ -65,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @SuppressWarnings("rawtypes")
     public static BottomSheetBehavior bottomSheetBehavior;
-    ArrayList<Entry> listEntry = new ArrayList<>();
     RecyclerView recyclerListOfEntry;
     TextView tvDate;
 
@@ -118,11 +110,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Botão Lista de Entradas
         FloatingActionButton floatBtnListOfEntries = findViewById(R.id.btnListAllEntriesId);
 
-
-        //Setando lista das Entry do dia no ReclycerView
-        //filter(date);
-        //Log.d("appkey", "Filtro: "+sFilter+", "+date);
-
         //Clique do botão
         floatBtnListOfEntries.setOnClickListener(view ->
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED));
@@ -130,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Floating Botão Salvar Relatório
         FloatingActionButton fabSaveReport = findViewById(R.id.btnShareReportId);
         fabSaveReport.setOnClickListener(view -> {
-            if (listEntry.isEmpty()) {
+            if (Objects.requireNonNull(recyclerListOfEntry.getAdapter()).getItemCount() == 0) {
                 showAlert(Utils.CREATE_FAIL, Utils.REPORT_EMPTY);
             }else {
                 saveReport();
@@ -148,9 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Botão filtar
         Button btnFiltar = findViewById(R.id.btnFilterEntryId);
-        btnFiltar.setOnClickListener(view -> {
-            fillListEntry(sFilter);
-        });
+        btnFiltar.setOnClickListener(view -> fillListEntry(sFilter));
 
         //Matrícula
         textViewUserId = findViewById(R.id.inputTextId);
@@ -332,17 +317,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             MakeFile makeFile = new MakeFile(dir);
 
-            String[] datesplit = tvDate.getText().toString().split("/");
+            String[] dateSplit = tvDate.getText().toString().split("/");
             String referencia;
-            String date_ref_for_file = datesplit[0]+"-"+datesplit[1]+"-"+datesplit[2];
+            String date_ref_for_file = dateSplit[0]+"-"+dateSplit[1]+"-"+dateSplit[2];
 
-            if (sFilter.equals("Dia")){
+            if (sFilter.equals(Utils.DAY)){
                 referencia = tvDate.getText().toString();
 
-            } else if (sFilter.equals("Mês")) {
-                referencia = datesplit[1]+"/"+datesplit[2];
+            } else if (sFilter.equals(Utils.MONTH)) {
+                referencia = dateSplit[1]+"/"+dateSplit[2];
             } else {
-                referencia = datesplit[2];
+                referencia = dateSplit[2];
             }
 
             int status = makeFile.savePdf(
@@ -375,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         intent.putExtra(
                 Intent.EXTRA_SUBJECT,
-                "Relatório Movimentações de Chaves-"+ referencia);
+                "Relatório de Movimentações de Chaves-"+ referencia);
 
         intent.putExtra(Intent.EXTRA_TEXT,
                 "Segue em anexo relatório com movimentações de chaves.\nReferência: "
