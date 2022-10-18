@@ -1,5 +1,6 @@
 package com.luiz.mg.magickey.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.luiz.mg.magickey.R;
+import com.luiz.mg.magickey.TakeOrBackKeyActivity;
 import com.luiz.mg.magickey.models.User;
+import com.luiz.mg.magickey.utils.Utils;
 
 public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<User,
         FirestoreRecyclerAdapterForUser.UserViewHolder> {
@@ -30,7 +33,12 @@ public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<Us
         holder.name.setText(user.getName());
         holder.dept.setText(user.getDept());
         holder.constraintLayout.setOnClickListener(view -> {
-
+            Intent i = new Intent(view.getContext(), TakeOrBackKeyActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.putExtra(Utils.NAME_USER, user.getName());
+            i.putExtra(Utils.MAT_USER, user.getMat());
+            i.putExtra(Utils.DEPT_USER, user.getDept());
+            view.getContext().getApplicationContext().startActivity(i);
         });
 
     }
@@ -59,6 +67,7 @@ public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<Us
             name = itemView.findViewById(R.id.nameId);
             dept = itemView.findViewById(R.id.deptId);
             constraintLayout = itemView.findViewById(R.id.layoutItemListUsersId);
+
 
         }
     }

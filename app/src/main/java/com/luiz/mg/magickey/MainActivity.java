@@ -43,7 +43,6 @@ import com.luiz.mg.magickey.utils.Utils;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -319,20 +318,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             String[] dateSplit = tvDate.getText().toString().split("/");
             String referencia;
-            String date_ref_for_file = dateSplit[0]+"-"+dateSplit[1]+"-"+dateSplit[2];
+            String date_ref_for_file;
 
-            if (sFilter.equals(Utils.DAY)){
+            if (sFilter.equals(Utils.DAY)) {
+
                 referencia = tvDate.getText().toString();
+                date_ref_for_file = dateSplit[0]+"-"+dateSplit[1]+"-"+dateSplit[2];
 
             } else if (sFilter.equals(Utils.MONTH)) {
+
                 referencia = dateSplit[1]+"/"+dateSplit[2];
+                date_ref_for_file = dateSplit[1]+"-"+dateSplit[2];
+
             } else {
+
                 referencia = dateSplit[2];
+                date_ref_for_file = dateSplit[2];
+
             }
 
             int status = makeFile.savePdf(
-                    bitmap, "Relatório-"+sFilter+"-"+date_ref_for_file,
-                    referencia);
+                    bitmap, "Relatório-"+sFilter+"-"+date_ref_for_file, referencia);
 
             if (status == 1) {
 
@@ -398,6 +404,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     sFilter = Utils.DAY;
                     String[] dateTimeSplit = dateTime.split(" ");
                     tvDate.setText(dateTimeSplit[0]);
+                    fillListEntry(sFilter);
                 }
             }
 
@@ -491,7 +498,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 logIn();
                 break;
         }
-
 
     }
 

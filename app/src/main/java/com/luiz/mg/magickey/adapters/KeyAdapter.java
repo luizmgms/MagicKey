@@ -96,9 +96,12 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
             textBor = viewHolder.bor.getResources().getString(R.string.borrowed)
                     + " a Você";
         } else {
+
+            String[] nameUserSplit = u.getName().split(" ");
+
             textBor = viewHolder.bor.getResources().getString(R.string.borrowed)
-                    + " a " + k.getNameBorr().split(" ")[0] + " "
-                    + k.getNameBorr().split(" ")[1];
+                    + " a " + nameUserSplit[0] + " "
+                    + nameUserSplit[1];
         }
         viewHolder.bor.setText(textBor);
         viewHolder.btnTakeOrBackKey.setText(R.string.back);
@@ -125,6 +128,9 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
     @SuppressLint("NotifyDataSetChanged")
     private void takeKey(Key key, User user, ViewHolder viewHolder) {
         FirestoreRecyclerAdapterForKey.takeKey(key, user, context, "pegar");
+        //key.setBorr(true);
+        key.setMatBorr(user.getMat());
+        key.setNameBorr(user.getName());
         setViewsLikeBack(viewHolder, key, user);
     }
 

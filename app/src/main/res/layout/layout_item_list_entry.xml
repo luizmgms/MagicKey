@@ -7,7 +7,7 @@
     android:padding="@dimen/pad_main"
     android:clickable="true"
     android:focusable="true"
-    android:background="?android:attr/selectableItemBackground"
+    android:foreground="?android:attr/selectableItemBackground"
     android:id="@+id/backgroundItemListEntryId">
 
     <TextView

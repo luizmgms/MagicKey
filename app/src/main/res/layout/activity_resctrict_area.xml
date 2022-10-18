@@ -103,18 +103,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnAddUsersLotId" />
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/editTextSearchId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/marg_btn"
-        android:autofillHints=""
-        android:drawableStart="@drawable/ic_baseline_search_24"
-        android:hint="@string/search"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="@id/titleListId"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listUserId"
         android:layout_width="match_parent"

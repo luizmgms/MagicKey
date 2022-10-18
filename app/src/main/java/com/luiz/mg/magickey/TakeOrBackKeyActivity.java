@@ -9,9 +9,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -31,8 +31,6 @@ import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.Utils;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class TakeOrBackKeyActivity extends AppCompatActivity {
@@ -96,9 +94,15 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         //Criando objeto usuário
         user = new User(mat, name, dept);
 
+        //Setando View com nome do usuário
         String[] splitName = name.split(" ");
-        //Setendo View com nome do usuário
-        String nameUser = splitName[0]+" "+splitName[1];
+        String nameUser;
+
+        if (splitName[1].length() <= 2)
+            nameUser = splitName[0]+" "+splitName[1]+" "+splitName[2];
+        else
+            nameUser = splitName[0]+" "+splitName[1];
+
         nameOfUser.setText(nameUser);
 
         //Popular Lista de chaves que o usuário pegou emprestado
@@ -115,7 +119,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
         //Comportamento do ListSearch
         bottomSheetBehaviorSearch = BottomSheetBehavior.from(layoutListSearch);
-        //bottomSheetBehaviorSearch.addBottomSheetCallback(callbackSheetBehavior());
+        bottomSheetBehaviorSearch.addBottomSheetCallback(callbackSheetBehavior());
         setHeightMaxOfView(rViewAllKeys, bottomSheetBehaviorSearch);
 
         /* Eventos */
@@ -203,9 +207,6 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
     //Lista de chaves que o usuário pegou
     private void setViewListEntryUser(User u) {
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        String dateTimeTakeKey = dtf.format(LocalDateTime.now());
-
         rViewListKeysUser.setLayoutManager(new LinearLayoutManagerWrapper(this));
         rViewListKeysUser.addItemDecoration(
                 new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -280,11 +281,29 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
         }
     }
 
+    private BottomSheetBehavior.BottomSheetCallback callbackSheetBehavior() {
+        return (new BottomSheetBehavior.BottomSheetCallback() {
+            @SuppressLint("SimpleDateFormat")
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    fillListKeySearch();
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+    }
+
     @Override
     public void onBackPressed() {
 
         if (bottomSheetBehaviorSearch.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehaviorSearch.setState(BottomSheetBehavior.STATE_HIDDEN);
+            bottomSheetBehaviorAllKeys.setState(BottomSheetBehavior.STATE_COLLAPSED);
             etSearch.onActionViewCollapsed();
         }else if (bottomSheetBehaviorAllKeys.getState() == BottomSheetBehavior.STATE_EXPANDED)
             bottomSheetBehaviorAllKeys.setState(BottomSheetBehavior.STATE_COLLAPSED);

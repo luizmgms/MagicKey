@@ -1,6 +1,7 @@
 package com.luiz.mg.magickey.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.luiz.mg.magickey.MainActivity;
 import com.luiz.mg.magickey.R;
+import com.luiz.mg.magickey.TakeOrBackKeyActivity;
 import com.luiz.mg.magickey.models.Entry;
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
@@ -89,7 +93,13 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
             holder.nameUserTakeKey.setText(text);
 
         } else {
+
             holder.btnBackKey.setVisibility(View.INVISIBLE);
+
+            if (entry.getNameUserBackKey().equals("")) {
+                holder.constraintLayout.setOnClickListener(view ->
+                        openActivity(holder.constraintLayout, entry));
+            }
         }
 
     }
@@ -121,6 +131,30 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
                 R.layout.layout_item_list_entry, parent, false);
 
         return new EntryViewHolder(view);
+    }
+
+    private void openActivity(View view, Entry entry) {
+
+        MainActivity.db.collection("users")
+                .document(entry.getMatUserTakeKey())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        User u = documentSnapshot.toObject(User.class);
+                        if (u != null) {
+                            Intent i = new Intent(view.getContext(), TakeOrBackKeyActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            i.putExtra(Utils.NAME_USER, u.getName());
+                            i.putExtra(Utils.MAT_USER, u.getMat());
+                            i.putExtra(Utils.DEPT_USER, u.getDept());
+                            view.getContext().getApplicationContext().startActivity(i);
+                        }
+
+                    }
+                }).addOnFailureListener(e -> Toast.makeText(view.getContext(),
+                        "Falha!", Toast.LENGTH_SHORT).show());
+
+
     }
 
     public static class EntryViewHolder extends RecyclerView.ViewHolder {

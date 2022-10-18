@@ -1,9 +1,5 @@
 package com.luiz.mg.magickey.utils;
 
-import android.net.Uri;
-import android.os.Environment;
-import android.util.Log;
-
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
 
@@ -70,9 +66,9 @@ public class ReadFile {
 
                 String[] key = line.split(div);
 
-                //Key k = new Key(key[0], key[1], key[2]);
+                Key k = new Key(key[0], key[1], false, "", "");
 
-                //list.add(k);
+                list.add(k);
 
             }
 
