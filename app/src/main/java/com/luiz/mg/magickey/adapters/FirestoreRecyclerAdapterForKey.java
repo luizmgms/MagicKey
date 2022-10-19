@@ -117,11 +117,6 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dateTimeTakeKey = dtf.format(LocalDateTime.now());
-        String[] dateTime = dateTimeTakeKey.split(" ");
-        String[] date = dateTime[0].split("/");
-        String dia = date[0];
-        String mes = date[1];
-        String ano = date[2];
 
         Entry newEntry = new Entry(
                 key.getName(),
@@ -165,11 +160,6 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dateTimeBackKey = dtf.format(LocalDateTime.now());
-        String[] dateTime = dateTimeBackKey.split(" ");
-        String[] date = dateTime[0].split("/");
-        String dia = date[0];
-        String mes = date[1];
-        String ano = date[2];
 
         MainActivity.db.collection("entry")
                 .whereEqualTo("nameKey", key.getName())
@@ -186,7 +176,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
                                 Log.d("appkey", "idEntry: "+idEntry);
 
                                 /*upDateEntry*/
-                                upDateEntry(idEntry, key, user, dateTimeBackKey, date, ctx, message);
+                                upDateEntry(idEntry, key, user, dateTimeBackKey, ctx, message);
 
                             }
 
@@ -204,7 +194,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
     }
 
     private static void upDateEntry(String idEntry, Key key, User user, String dateTimeBackKey,
-                             String[] date, Context ctx, String message) {
+                                    Context ctx, String message) {
 
         MainActivity.db.collection("entry")
                 .document(idEntry)

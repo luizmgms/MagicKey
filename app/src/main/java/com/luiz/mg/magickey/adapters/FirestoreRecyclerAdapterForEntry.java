@@ -15,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.luiz.mg.magickey.MainActivity;
 import com.luiz.mg.magickey.R;
@@ -30,7 +28,6 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         FirestoreRecyclerAdapterForEntry.EntryViewHolder> {
 
     User user;
-
 
     public FirestoreRecyclerAdapterForEntry(@NonNull FirestoreRecyclerOptions<Entry> options,
                                             User user) {

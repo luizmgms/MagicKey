@@ -13,8 +13,6 @@ public class Utils {
      public static final String NAME_USER = "name";
      public static final String MAT_USER = "mat";
      public static final String DEPT_USER = "dept";
-     public static final String NO_KEY = "NÃO";
-     public static final String YES_KEY = "SIM";
      public static final String CREATE_FAIL = "Erro ao Criar Arquivo!";
      public static final String SAVE_SUCCESS = "Relatório Salvo com Sucesso!";
      public static final String SAVE_FAIL = "Erro ao tentar salvar Relátório!";
@@ -36,22 +34,15 @@ public class Utils {
      public static final String KEY = "Chave:";
      public static final String DELIVERED = "Entregue a";
      public static final String DAY = "Dia";
-     public static final String NO_BACKED = "NÃO DEVOLVIDA!";
      public static final String sector = "-- Setor --";
      public static final String CAD = "Cadastrar";
      public static final String CANCEL = "Cancelar";
      public static final String ADD_USER_SUCCESS = "Usuário Adiconado com Sucesso!";
      public static final String ADD_USER_FAIL = "Erro ao cadastrar usuário!";
-     public static final String ADD_USER_EXISTS = "Usuário já cadastrado!";
-     public static final String ADD_KEY_FAIL = "Erro ao cadastrar chave!";
-     public static final String ADD_KEY_SUCCESS = "Chave cadastrada com sucesso!";
-     public static final String ADD_KEY_EXISTS = "Chave já cadastrada!";
-     public static final String DEL = "Deletar";
      public static final String PICK_FILE_CSV = "Você deve escolher um arquivo .csv com " +
              "os campos separados por vírgula, como na imagem abaixo.";
      public static final String MONTH = "Mês";
      public static final String BORR = "Emprestada";
-     public static final String NOT_BORR = "Não Emprestada";
 
      public static Bitmap screenShot (RecyclerView view) {
           //noinspection rawtypes

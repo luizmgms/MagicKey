@@ -9,8 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-import com.luiz.mg.magickey.MainActivity;
-
 import java.util.Calendar;
 
 public class DatePickerFragment extends DialogFragment

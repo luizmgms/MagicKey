@@ -401,10 +401,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+
                     sFilter = Utils.DAY;
-                    String[] dateTimeSplit = dateTime.split(" ");
+                    DateTimeFormatter dT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                    String dt = dT.format(LocalDateTime.now());
+                    String[] dateTimeSplit = dt.split(" ");
                     tvDate.setText(dateTimeSplit[0]);
                     fillListEntry(sFilter);
+
                 }
             }
 
