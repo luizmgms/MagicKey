@@ -25,11 +25,21 @@ import com.luiz.mg.magickey.utils.Utils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * @author Luiz Magno
+ * Classe Adapter para Lista de Chaves
+ * Extentida da classe FirestoreRecyclerAdapter
+ */
 public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key,
         FirestoreRecyclerAdapterForKey.KeyViewHolder> {
 
     private final User user;
 
+    /**
+     * Construtor da Classe
+     * @param options criado a partir de um Query do Firebase e uma Classe Key
+     * @param user Objeto usuário
+     */
     public FirestoreRecyclerAdapterForKey(@NonNull FirestoreRecyclerOptions<Key> options, User user) {
         super(options);
 
@@ -37,6 +47,14 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
+    /**
+     * Método sobrescrito para setar views do item da lista.
+     * Dependendo do estado da chave, ele mostra de a chave está emprestada e para quem.
+     * Também mostra o botão Devolver ou Pegar se ele estiver emprestada ou não.
+     * @param holder view pai com views a serem setadas
+     * @param position posição do item na lista
+     * @param key Objeto Key da lista
+     */
     @Override
     protected void onBindViewHolder(@NonNull KeyViewHolder holder, int position, @NonNull Key key) {
 
@@ -113,6 +131,15 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
+    /**
+     * Método que inicia o processo de pegar uma Chave.
+     * Ele primeiro tentar adicionar uma nova Entry ao FireStore criada a partir dos dados dos
+     * Objetos key e user, se obtiver sucesso, ele chama o método updateKey().
+     * @param key Objeto chave
+     * @param user Objeto Usuário
+     * @param ctx Contexto da aplicação para exibição de Toasts
+     * @param message String para mensagens Toast
+     */
     public static void takeKey(Key key, User user, Context ctx, String message) {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -136,6 +163,14 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
+    /**
+     * Método que inicia processo de atualização do estado da chave no FireSTore.
+     * Dependendo do estado se está emprestada ou não, ela é atualizada para o contrário.
+     * @param key objeto key
+     * @param u objeto Usuário
+     * @param ctx Contexto da aplicação para exibição de Toasts
+     * @param message String para mensagens Toast
+     */
     public static void updateKey(Key key, User u,Context ctx, String message) {
 
         MainActivity.db.collection("keys").document(key.getName())

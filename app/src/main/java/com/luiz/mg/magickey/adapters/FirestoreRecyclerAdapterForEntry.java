@@ -24,11 +24,21 @@ import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.Utils;
 
+/**
+ * @author Luiz Magno
+ * Classe Adapter para Lista de Registro de movimentações de chaves
+ * Extentida da classe FirestoreRecyclerAdapter
+ */
 public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<Entry,
         FirestoreRecyclerAdapterForEntry.EntryViewHolder> {
 
     User user;
 
+    /**
+     * Construtor da Classe
+     * @param options criado a partir de um Query do Firebase e uma Classe Entry
+     * @param user Objeto usuário
+     */
     public FirestoreRecyclerAdapterForEntry(@NonNull FirestoreRecyclerOptions<Entry> options,
                                             User user) {
         super(options);
@@ -36,6 +46,13 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         this.user = user;
     }
 
+    /**
+     * Método sobrescrito para setar views do item da lista.
+     * Dependendo do estado de uma Entry, ele mostra se aquela chave já foi devolvida ou não.
+     * @param holder view pai com views a serem setadas
+     * @param position posição do item na lista
+     * @param entry Objeto Entry da lista
+     */
     @Override
     protected void onBindViewHolder(@NonNull EntryViewHolder holder, int position,
                                     @NonNull Entry entry) {
@@ -101,6 +118,14 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
 
     }
 
+    /**
+     * Método que inicia o processo de devolução da Chave no FireStore.
+     * Ele pesquisa o id da chave e caso tenha sucesso chama o método estático backKey() da classe
+     * FirestoreRecyclerAdapterForKey
+     * @param nameKey nome da chave
+     * @param u Objeto Usuário
+     * @param ctx Contexto da aplicação para exibição de Toasts
+     */
     private void backKey(String nameKey, User u, Context ctx) {
         MainActivity.db.collection("keys").document(nameKey)
         .get().addOnCompleteListener(task -> {
@@ -120,6 +145,12 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
 
     }
 
+    /**
+     * Método que monta (infla) cada um dos itens da lista
+     * @param parent ViewGroup (pai)
+     * @param viewType tipo da view
+     * @return Objeto EntryViewHolder
+     */
     @NonNull
     @Override
     public EntryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -130,6 +161,13 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         return new EntryViewHolder(view);
     }
 
+    /**
+     * Método para abrir activity TakeOrBackKeyActivity caso a chave ainda não tenha sido devolvida.
+     * Ele procura no FireStore o usuário que pegou a chave e caso tenha sucesso,
+     * abre a activity TakeOrBackKeyActivity passando as informações do usuário.
+     * @param view para se pegar o contexto da aplicação
+     * @param entry item da lista que chamou o método
+     */
     private void openActivity(View view, Entry entry) {
 
         MainActivity.db.collection("users")
@@ -154,6 +192,9 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
 
     }
 
+    /**
+     * Classe interna usada para atribuir as views do itemView da lista
+     */
     public static class EntryViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView nameKey;
