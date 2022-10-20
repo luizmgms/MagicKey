@@ -36,7 +36,7 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
 
     /**
      * Construtor da Classe
-     * @param options criado a partir de um Query do Firebase e uma Classe Entry
+     * @param options criado a partir de uma Query do Firebase e uma Classe Entry
      * @param user Objeto usuário
      */
     public FirestoreRecyclerAdapterForEntry(@NonNull FirestoreRecyclerOptions<Entry> options,

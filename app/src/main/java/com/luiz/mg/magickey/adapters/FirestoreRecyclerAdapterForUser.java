@@ -17,15 +17,28 @@ import com.luiz.mg.magickey.TakeOrBackKeyActivity;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.Utils;
 
+/**
+* @author Luiz Magno
+* Classe Adapter para Lista de Usuários
+* Extentida da classe FirestoreRecyclerAdapter
+*/
 public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<User,
         FirestoreRecyclerAdapterForUser.UserViewHolder> {
 
+    /**
+     * Construtor da Classe
+     * @param options criado a partir de uma Query do Firebase e uma Classe User
+     */
     public FirestoreRecyclerAdapterForUser(@NonNull FirestoreRecyclerOptions<User> options) {
         super(options);
     }
 
-
-
+    /**
+     * Método sobrescrito para setar views do item da lista.
+     * @param holder view pai com views a serem setadas
+     * @param position posição do item na lista
+     * @param user Objeto User da lista
+     */
     @Override
     protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
 
@@ -43,6 +56,12 @@ public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<Us
 
     }
 
+    /**
+     * Método que monta (infla) cada um dos itens da lista
+     * @param parent ViewGroup (pai)
+     * @param viewType tipo da view
+     * @return Objeto UserViewHolder
+     */
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

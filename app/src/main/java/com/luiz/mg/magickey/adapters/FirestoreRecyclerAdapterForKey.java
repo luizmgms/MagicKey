@@ -37,7 +37,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     /**
      * Construtor da Classe
-     * @param options criado a partir de um Query do Firebase e uma Classe Key
+     * @param options criado a partir de uma Query do Firebase e uma Classe Key
      * @param user Objeto usuário
      */
     public FirestoreRecyclerAdapterForKey(@NonNull FirestoreRecyclerOptions<Key> options, User user) {
@@ -164,8 +164,8 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
     }
 
     /**
-     * Método que inicia processo de atualização do estado da chave no FireSTore.
-     * Dependendo do estado se está emprestada ou não, ela é atualizada para o contrário.
+     * Método que inicia processo de atualização do estado da chave no FireStore.
+     * Dependendo do estado, se está emprestada ou não, ela é atualizada para o contrário.
      * @param key objeto key
      * @param u objeto Usuário
      * @param ctx Contexto da aplicação para exibição de Toasts
@@ -191,6 +191,15 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
+    /**
+     * Método que inicia o processo de devolução de uma chave
+     * Ele pesquisa no FireStore o id da Entry em aberto (chave não devolvida),
+     * se obtiver sucesso, ele chama o método upDateEntry()
+     * @param key Objeto Key
+     * @param user Objeto Usuário
+     * @param ctx  Contexto da aplicação para exibição de Toasts
+     * @param message String para mensagens Toast
+     */
     public static void backKey(Key key, User user, Context ctx, String message){
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -228,17 +237,26 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
                                 Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Método que inicia o processo de atualização de uma Entry em aberto (Chave não devolvida).
+     * A Entry é pesquisada no FireStore através da id passada por parâmetro.
+     * Ela é atualizada com as informações do usuário que devolveu a chave.
+     * Se a Entry for atualizada com sucesso, ele chama o método upDateKey().
+     * @param idEntry id da Entry a ser atualizada
+     * @param key Objeto Key
+     * @param user Objeto User
+     * @param dateTimeBackKey Data e hora de devolução da chave
+     * @param ctx Contexto da aplicação para exibição de Toasts
+     * @param message  String para mensagens Toast
+     */
     private static void upDateEntry(String idEntry, Key key, User user, String dateTimeBackKey,
                                     Context ctx, String message) {
 
         MainActivity.db.collection("entry")
                 .document(idEntry)
-                .update("matUserBackKey",
-                        user.getMat(),
-                        "nameUserBackKey",
-                        user.getName(),
-                        "dateTimeBackKey",
-                        dateTimeBackKey)
+                .update("matUserBackKey", user.getMat(),
+                        "nameUserBackKey", user.getName(),
+                        "dateTimeBackKey", dateTimeBackKey)
                 .addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
@@ -257,7 +275,12 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
-
+    /**
+     * Método que monta (infla) cada um dos itens da lista
+     * @param parent ViewGroup (pai)
+     * @param viewType tipo da view
+     * @return Objeto KeyViewHolder
+     */
     @NonNull
     @Override
     public KeyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -269,6 +292,9 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     }
 
+    /**
+     * Classe interna usada para atribuir as views do itemView da lista
+     */
     public static class KeyViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView nameKey;
