@@ -72,6 +72,9 @@ public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<Us
         return new UserViewHolder(view);
     }
 
+    /**
+     * Classe interna usada para atribuir as views do itemView da lista
+     */
     public static class UserViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView mat;

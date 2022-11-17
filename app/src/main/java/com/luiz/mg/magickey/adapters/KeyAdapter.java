@@ -18,13 +18,20 @@ import com.luiz.mg.magickey.models.User;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("deprecation")
+/**
+ * @author Luiz Magno
+ * Classe Adapter para Lista de Chaves da Busca literal
+ * Extentida da classe RecyclerView.Adapter
+ */
 public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
     private ArrayList<Key> listKeys;
     private final User user;
     private final Context context;
 
+    /**
+     * Classe interna usada para atribuir as views do itemView da lista
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView name;
@@ -42,6 +49,12 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
     }
 
+    /**
+     * Construtor da Classe
+     * @param keys lista das chaves
+     * @param user Objeto User
+     * @param ctx Contexto da Aplicação
+     */
     public KeyAdapter(ArrayList<Key> keys, User user, Context ctx) {
         this.listKeys = keys;
         this.user = user;
@@ -49,6 +62,12 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
     }
 
+    /**
+     * Método que monta (infla) cada um dos itens da lista
+     * @param viewGroup ViewGroup (pai)
+     * @param viewType tipo da view
+     * @return Objeto ViewHolder
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -59,6 +78,11 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
         return new ViewHolder(view);
     }
 
+    /**
+     * Método sobrescrito para setar views do item da lista.
+     * @param viewHolder view pai com views a serem setadas
+     * @param position posição do item na lista
+     */
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 
@@ -87,10 +111,16 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
 
     }
 
-    //Set View Como Devolver
+    /**
+     * Método para setar views para devolver chave (A chave está emprestada)
+     * @param viewHolder view pai com views a serem setadas
+     * @param k Objeto Key
+     * @param u Objeto User
+     */
     private void setViewsLikeBack(ViewHolder viewHolder, Key k, User u) {
 
-        viewHolder.bor.setTextColor(context.getResources().getColor(R.color.red));
+        viewHolder.bor.setTextColor(context.getResources().getColor(R.color.red,
+                viewHolder.bor.getContext().getTheme()));
         String textBor;
         if (k.getNameBorr().equals(u.getName())) {
             textBor = viewHolder.bor.getResources().getString(R.string.borrowed)
@@ -106,39 +136,64 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.ViewHolder> {
         viewHolder.bor.setText(textBor);
         viewHolder.btnTakeOrBackKey.setText(R.string.back);
         viewHolder.btnTakeOrBackKey.setBackgroundColor(
-                context.getResources().getColor(R.color.red));
+                context.getResources().getColor(R.color.red, context.getTheme()));
     }
 
+    /**
+     * Método para setar views para pegar chave (A chave não está emprestada)
+     * @param viewHolder view pai com views a serem setadas
+     */
     private void setViewsLikeTake(ViewHolder viewHolder) {
 
-        viewHolder.bor.setTextColor(context.getResources().getColor(R.color.green));
+        viewHolder.bor.setTextColor(context.getResources().getColor(R.color.green,
+                viewHolder.bor.getContext().getTheme()));
         viewHolder.bor.setText(R.string.no_bor);
         viewHolder.btnTakeOrBackKey.setText(R.string.take);
         viewHolder.btnTakeOrBackKey.setBackgroundColor(
-                context.getResources().getColor(R.color.green));
+                context.getResources().getColor(R.color.green,
+                        viewHolder.btnTakeOrBackKey.getContext().getTheme()));
 
     }
 
+    /**
+     * Método sobrescrito que retorna a quantidade de itens na lista
+     * @return Inteiro - tamanho da lista
+     */
     @Override
     public int getItemCount() {
         return listKeys.size();
     }
 
-    //Pegar chave
-    @SuppressLint("NotifyDataSetChanged")
+    /**
+     * Método que inicia o processo de emprestimo de chave
+     * Ele chama o método estático takeKey() da classe FirestoreRecyclerAdapterForKey
+     * @param key Objeto Key
+     * @param user Objeto User
+     * @param viewHolder view pai com views a serem setadas
+     */
     private void takeKey(Key key, User user, ViewHolder viewHolder) {
         FirestoreRecyclerAdapterForKey.takeKey(key, user, context, "pegar");
-        //key.setBorr(true);
         key.setMatBorr(user.getMat());
         key.setNameBorr(user.getName());
         setViewsLikeBack(viewHolder, key, user);
     }
 
+    /**
+     * Método que inicia o processo de devolução de chave
+     * Ele chama o método estático backKey() da classe FirestoreRecyclerAdapterForKey
+     * @param key Objeto Key
+     * @param user Objeto User
+     * @param viewHolder view pai com views a serem setadas
+     */
     private void backKey(Key key, User user, ViewHolder viewHolder) {
         FirestoreRecyclerAdapterForKey.backKey(key, user, context, "devolver");
         setViewsLikeTake(viewHolder);
     }
 
+    /**
+     * Método de filtragem da lista de chaves usada na pesquisa de chave
+     * @param filterlist ListKey filtrada
+     */
     @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<Key> filterlist) {
         listKeys = filterlist;
