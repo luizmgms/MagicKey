@@ -88,7 +88,7 @@
     <string name="search">Pesquisar </string>
     <string name="take_back_other_key">Pegar/Devolver Outra Chave</string>
     <string name="search_user">Procurando usuário…</string>
-    <string name="img_of_key">Mão segurando uma chave pelo chaveiro com a ponta dos dedos polegar e indicador</string>
+    <string name="img_of_key">Logo do IFPI que parece uma chave</string>
     <string name="button_enter_back_key">Entrar nas chaves do usuário</string>
     <string name="add_new_user">Cadastrar Novo Usuário</string>
     <string name="cad">Cadastrar</string>
@@ -107,6 +107,13 @@
     <string name="user_exists">Usuário já cadastrado!</string>
     <string name="no_back">Não Devolvida!</string>
     <string name="developer">Desenvolvido pela Coordenação de Tecnologia da Informação do IFPI - Paulistana</string>
+    <string name="cad_emails">Cadastrar Emails</string>
+    <string name="email">Emails</string>
+    <string name="add_email_to_send_report">Cadastrar/Editar Emails de Envio de Relatórios</string>
+    <string name="text_add_emails">Você pode cadastrar mais de um email, basta colocar um email por linha.</string>
+    <string name="save_and_send_report">Salvar e Enviar\nRelatório</string>
+    <string name="reports">Empréstimos e\nDevoluções</string>
+    <string name="area_restrict">Área de Acesso\nRestrito</string>
     <string-array name="depts_array">
         <item>-- Setor --</item>
         <item>CTI</item>

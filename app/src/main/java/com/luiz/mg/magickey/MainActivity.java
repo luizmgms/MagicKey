@@ -1,13 +1,15 @@
 package com.luiz.mg.magickey;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -37,6 +40,7 @@ import com.luiz.mg.magickey.fragments.DatePickerFragment;
 import com.luiz.mg.magickey.models.Entry;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.reports.MakeFile;
+import com.luiz.mg.magickey.utils.DialogButtonClickWrapper;
 import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.Utils;
 
@@ -117,9 +121,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FloatingActionButton fabSaveReport = findViewById(R.id.btnShareReportId);
         fabSaveReport.setOnClickListener(view -> {
             if (Objects.requireNonNull(recyclerListOfEntry.getAdapter()).getItemCount() == 0) {
-                showAlert(Utils.CREATE_FAIL, Utils.REPORT_EMPTY);
-            }else {
-                saveReport();
+                showAlert(Utils.CREATE_FAIL, Utils.REPORT_EMPTY, false);
+            } else {
+                saveAndSendReport(recyclerListOfEntry);
             }
         });
 
@@ -175,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (userId.equals("")) {
 
-            showAlert("Campo Vazio!", "Entre com o Nº de sua Matrícula ou CPF");
+            showAlert("Campo Vazio!", "Entre com o Nº de sua Matrícula ou CPF", false);
 
         } else {
 
@@ -195,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             userId = "";
                             textViewUserId.setText(userId);
                             progressBar.setVisibility(View.INVISIBLE);
-                            showAlert("Erro de Login!", "Usuário não encontrado!");
+                            showAlert("Erro de Login!", "Usuário não encontrado!", false);
 
                         } else {
 
@@ -220,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         textViewUserId.setText(userId);
                         progressBar.setVisibility(View.INVISIBLE);
                         showAlert("Falha!", Objects.requireNonNull(task.getException())
-                                .getMessage());
+                                .getMessage(), false);
                         Log.d("appkey", task.getException().getMessage());
 
                     }
@@ -292,73 +296,94 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void saveReport () {
+    private void saveAndSendReport (RecyclerView recyclerView) {
 
-        // Verifica  o estado da permissão de WRITE_EXTERNAL_STORAGE
-        int permissionCheck = ContextCompat
-                .checkSelfPermission(
-                        this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        //Get Preferences
+        SharedPreferences sharedPreferences = getSharedPreferences("appkey", MODE_PRIVATE);
 
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            // Se for diferente de PERMISSION_GRANTED, então vamos exibir a tela padrão
-            ActivityCompat
-                    .requestPermissions(
-                            this, new String[]{
-                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            1);
+        //Pegar email
+        String emailToSendReport = sharedPreferences.getString("email", "");
+
+        //Se tiver vazio, pede para cadastrar um email
+        if (emailToSendReport.equals("")) {
+
+            showAlert("EMAIL NÃO CADASTRADO!",
+                    "Não existe nenhum email cadastrado para se enviar os relatórios. " +
+                            "Se deseja cadastrar emails, toque em OK.", true);
+
         } else {
 
-            //Se não, vamos criar a imagem
-            Bitmap bitmap = Utils.screenShot(recyclerListOfEntry);
+            // Verifica  o estado da permissão de WRITE_EXTERNAL_STORAGE
+            int permissionCheck = ContextCompat
+                    .checkSelfPermission(
+                            this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-            File dir = new File(
-                    Environment.getExternalStorageDirectory() + Utils.DIRECTORY_REPORTS);
-
-            MakeFile makeFile = new MakeFile(dir);
-
-            String[] dateSplit = tvDate.getText().toString().split("/");
-            String referencia;
-            String date_ref_for_file;
-
-            if (sFilter.equals(Utils.DAY)) {
-
-                referencia = tvDate.getText().toString();
-                date_ref_for_file = dateSplit[0]+"-"+dateSplit[1]+"-"+dateSplit[2];
-
-            } else if (sFilter.equals(Utils.MONTH)) {
-
-                referencia = dateSplit[1]+"/"+dateSplit[2];
-                date_ref_for_file = dateSplit[1]+"-"+dateSplit[2];
-
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                // Se for diferente de PERMISSION_GRANTED, então vamos exibir a tela padrão
+                ActivityCompat
+                        .requestPermissions(
+                                this, new String[]{
+                                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                1);
             } else {
 
-                referencia = dateSplit[2];
-                date_ref_for_file = dateSplit[2];
+                //Diretório de salvamento dos relatórios
+                File dir = new File(
+                        Environment.getExternalStorageDirectory() + Utils.DIRECTORY_REPORTS);
+
+                MakeFile makeFile = new MakeFile(dir);
+
+                String[] dateSplit = tvDate.getText().toString().split("/");
+                String ref;
+                String date_ref_for_file;
+
+                if (sFilter.equals(Utils.DAY)) {
+
+                    ref = tvDate.getText().toString();
+                    date_ref_for_file = dateSplit[0] + "-" + dateSplit[1] + "-" + dateSplit[2];
+
+                } else if (sFilter.equals(Utils.MONTH)) {
+
+                    ref = dateSplit[1] + "/" + dateSplit[2];
+                    date_ref_for_file = dateSplit[1] + "-" + dateSplit[2];
+
+                } else {
+
+                    ref = dateSplit[2];
+                    date_ref_for_file = dateSplit[2];
+
+                }
+
+                //Criar o arquivo PDF
+                int status = makeFile.createPdf(recyclerView,
+                        "Relatório-" + sFilter + "-" + date_ref_for_file + ".pdf", ref);
+
+                //Se foi criado com sucesso, abrir Intent de envio de e-mail
+                if (status == 1) {
+
+                    Toast.makeText(
+                            getApplicationContext(), Utils.SAVE_SUCCESS, Toast.LENGTH_SHORT).show();
+
+                    //Enviar e-mail
+                    sendEmail(ref, dir, "/Relatório-" + sFilter + "-" + date_ref_for_file + ".pdf");
+
+                } else {
+
+                    //Erro ao criar o arquivo
+                    showAlert(Utils.CREATE_FAIL, Utils.SAVE_FAIL, false);
+                }
 
             }
-
-            int status = makeFile.savePdf(
-                    bitmap, "Relatório-"+sFilter+"-"+date_ref_for_file, referencia);
-
-            if (status == 1) {
-
-                Toast.makeText(
-                        getApplicationContext(), Utils.SAVE_SUCCESS, Toast.LENGTH_SHORT).show();
-
-                //Enviar e-mail
-                sendEmail(referencia, dir,
-                        "/Relatório-"+sFilter+"-"+date_ref_for_file+".pdf");
-
-            } else {
-
-                showAlert(Utils.CREATE_FAIL, Utils.SAVE_FAIL);
-            }
-
         }
     }
 
     private void sendEmail(String referencia, File dir, String fileName) {
-        String[] address = {Utils.ADDRESS_EMAIL_TO_SEND_REPORTS};
+
+        SharedPreferences preferences = getSharedPreferences("appkey", MODE_PRIVATE);
+
+        String emails = preferences.getString("email", "");
+
+        String[] address = emails.split("\n");
 
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:"));
@@ -377,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(intent);
     }
 
-    private void showAlert(String title, String msg) {
+    private void showAlert(String title, String msg, boolean isEmail) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
@@ -386,6 +411,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Add the buttons
         builder.setPositiveButton(R.string.ok, (dialog, id) -> {
             // User clicked OK button
+            if (isEmail) {
+                showDialogAddEmail();
+            }
         });
         // Create the AlertDialog
         AlertDialog dialog = builder.create();
@@ -393,6 +421,94 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @SuppressLint("InflateParams")
+    private void showDialogAddEmail(){
+
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View inflate;
+
+        //Definição do Layout
+        inflate = inflater.inflate(R.layout.layout_add_email, null);
+
+        //Definição dos Campos
+        final TextInputEditText itEmail = inflate.findViewById(R.id.emailsId);
+
+        //SetView no dialog
+        builder.setView(inflate);
+
+        //Botão Cancelar
+        builder.setNegativeButton(Utils.CANCEL, (dialogInterface, i) -> {
+            //Cancelar
+        });
+
+        //Não Cancelável
+        builder.setCancelable(false);
+
+        //Criar
+        dialog = builder.create();
+
+        //Set Botão cadastrar (Não colocar nada)
+        dialog.setButton(
+                DialogInterface.BUTTON_POSITIVE, Utils.CAD, (dialog1, which) -> {});
+
+        //Mostrar Dialog
+        dialog.show();
+
+        //Customizando botão cadastrar
+        Button theButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
+            @Override
+            protected boolean onClicked() {
+
+                return addEmails(itEmail);
+
+            }
+        });
+    }
+
+    private boolean addEmails(TextInputEditText itEmail) {
+
+        String strEmails = Objects.requireNonNull(itEmail.getText()).toString();
+
+        if (!strEmails.contains("\n"))
+            strEmails = strEmails+"\n";
+
+        String[] aOfEmails = strEmails.split("\n");
+
+        if (aOfEmails.length == 0) {
+
+            itEmail.setError("Email inválido!");
+            return false;
+
+        } else {
+
+            for (String e: aOfEmails) {
+                if (!e.contains("@")) {
+                    itEmail.setError("Algum email inválido!");
+                    return false;
+                }
+            }
+
+            SharedPreferences preferences = getSharedPreferences(
+                    "appkey", MODE_PRIVATE);
+
+            boolean success = preferences.edit().putString(
+                    "email", itEmail.getText().toString()).commit();
+
+            if (success) {
+                Toast.makeText(this, "Email(s) cadastrado(s) com sucesso!",
+                        Toast.LENGTH_SHORT).show();
+                return true;
+            } else {
+                Toast.makeText(this, "Erro ao cadastradar!",
+                        Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+    }
 
 
     private BottomSheetBehavior.BottomSheetCallback callbackSheetBehavior() {

@@ -9,6 +9,15 @@
     tools:context=".MainActivity"
     android:id="@+id/mainActivityId">
 
+    <TextView
+        android:id="@+id/labelReportsId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reports"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnListAllEntriesId"
         android:layout_width="wrap_content"
@@ -18,8 +27,19 @@
         android:backgroundTint="@color/color_fab"
         app:borderWidth="0dp"
         app:tint="@android:color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="8dp"
+        app:layout_constraintStart_toStartOf="@id/labelReportsId"
+        app:layout_constraintEnd_toEndOf="@id/labelReportsId"
+        app:layout_constraintTop_toBottomOf="@id/labelReportsId" />
+
+    <TextView
+        android:id="@+id/labelAreaRestrictId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/area_restrict"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/lockButtonId"
@@ -28,9 +48,11 @@
         app:borderWidth="0dp"
         android:src="@drawable/ic_baseline_lock_24"
         app:tint="@android:color/white"
+        android:layout_margin="8dp"
         android:backgroundTint="@color/color_fab"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@id/labelAreaRestrictId"
+        app:layout_constraintEnd_toEndOf="@id/labelAreaRestrictId"
+        app:layout_constraintTop_toBottomOf="@id/labelAreaRestrictId"
         android:contentDescription="@string/area_lock" />
 
     <ImageView

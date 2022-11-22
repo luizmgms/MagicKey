@@ -3,6 +3,7 @@ package com.luiz.mg.magickey;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -97,6 +98,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         Button btnListKeys = findViewById(R.id.btnListKeysId);
         Button btnAddUsersLot = findViewById(R.id.btnAddUsersLotId);
         Button btnAddKeysLot = findViewById(R.id.btnAddKeysLotId);
+        Button btnAddEmails = findViewById(R.id.btnAddEmailsId);
 
         titleList.setText(R.string.title_list_user);
 
@@ -112,6 +114,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         btnAddKey.setOnClickListener(this);
         btnAddUsersLot.setOnClickListener(this);
         btnAddKeysLot.setOnClickListener(this);
+        btnAddEmails.setOnClickListener(this);
 
     }
 
@@ -145,6 +148,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 isLotUsers = false;
                 if (requestPermission())
                     showDialogAddKeysLot();
+                break;
+            case R.id.btnAddEmailsId:
+                showDialogAddEmails();
                 break;
         }
     }
@@ -316,6 +322,91 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 return addNewKey(itNameKey, dialog);//Retornando true fecha o dialog
             }
         });
+    }
+
+    private void showDialogAddEmails() {
+
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View inflate;
+
+        //Definição do Layout
+        inflate = inflater.inflate(R.layout.layout_add_email, null);
+
+        //Definição dos Campos
+        final TextInputEditText itEmails = inflate.findViewById(R.id.emailsId);
+
+        SharedPreferences preferences = getSharedPreferences("appkey", MODE_PRIVATE);
+
+        itEmails.setText(preferences.getString("email",""));
+
+        //SetView no dialog
+        builder.setView(inflate);
+
+        //Botão Cancelar
+        builder.setNegativeButton(Utils.CANCEL, (dialogInterface, i) -> {
+            //Cancelar
+        });
+
+        //Não Cancelável
+        builder.setCancelable(false);
+
+        //Criar
+        dialog = builder.create();
+
+        //Set Botão cadastrar (Não colocar nada)
+        dialog.setButton(
+                DialogInterface.BUTTON_POSITIVE, Utils.CAD, (dialog1, which) -> {});
+
+        //Mostrar Dialog
+        dialog.show();
+
+        //Customizando botão cadastrar
+        Button theButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
+            @Override
+            protected boolean onClicked() {
+                return addEmails(itEmails, preferences);
+            }
+        });
+
+    }
+
+    private boolean addEmails (TextInputEditText emails, SharedPreferences pref) {
+
+        String strEmails = Objects.requireNonNull(emails.getText()).toString();
+
+        if (!Objects.requireNonNull(emails.getText()).toString().contains("\n"))
+            strEmails = strEmails+"\n";
+
+        String[] aOfEmails = strEmails.split("\n");
+
+        if (aOfEmails.length == 0) {
+            emails.setError("Email inválido!");
+            return false;
+        } else {
+            for (String e: aOfEmails) {
+                if (!e.contains("@")) {
+                    emails.setError("Algum email inválido!");
+                    return false;
+                }
+            }
+
+            boolean status = pref.edit().putString("email",
+                    Objects.requireNonNull(emails.getText()).toString()).commit();
+
+            if (status) {
+                Toast.makeText(this, "Email(s) cadastrado(s) com sucesso!",
+                        Toast.LENGTH_SHORT).show();
+                return true;
+            } else {
+                Toast.makeText(this, "Erro ao cadastradar!",
+                        Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
     }
 
     private void consultUser (User user, AlertDialog dialog) {
