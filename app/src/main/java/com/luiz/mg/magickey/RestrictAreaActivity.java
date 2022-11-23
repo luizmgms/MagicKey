@@ -58,26 +58,30 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
             uri -> {
 
-                String path="";
-                try {
-                    path = PathUtil.getPath(this, uri);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
+                if (uri != null) {
 
-                if (path != null && path.endsWith(".csv")) {
+                    String path = "";
 
-                    if (isLotUsers) {
-                        addUsersLot(path);
-                    } else {
-                        addKeysLot(path);
+                    try {
+                        path = PathUtil.getPath(this, uri);
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
                     }
 
-                } else {
+                    if (path != null && path.endsWith(".csv")) {
 
-                    Toast.makeText(this, "Arquivo Inválido! Escolha um arquivo .csv",
-                            Toast.LENGTH_LONG).show();
+                        if (isLotUsers) {
+                            addUsersLot(path);
+                        } else {
+                            addKeysLot(path);
+                        }
 
+                    } else {
+
+                        Toast.makeText(this, "Arquivo Inválido! Escolha um arquivo .csv",
+                                Toast.LENGTH_LONG).show();
+
+                    }
                 }
 
             }
@@ -324,6 +328,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         });
     }
 
+    @SuppressLint("InflateParams")
     private void showDialogAddEmails() {
 
         AlertDialog dialog;
