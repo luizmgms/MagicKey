@@ -2,6 +2,7 @@ package com.luiz.mg.magickey.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,13 +134,20 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
                 DocumentSnapshot document = task.getResult();
                 Key k = document.toObject(Key.class);
                 if (document.exists() && k != null) {
+                Log.d("appkey", "Chamando método FirestoreRecyclerAdapterForKey.backKey(key, user, context, 'devolver')");
                     FirestoreRecyclerAdapterForKey.backKey(k,u, ctx, "devolver");
                 } else {
                     Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
+                    Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: Document No Exists");
                 }
             } else {
                 Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
+                Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: Task Failure");
             }
+        }).addOnFailureListener(e -> {
+                Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
+                Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: Task Failure");
+                e.printStackTrace();
         });
 
 

@@ -205,6 +205,8 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dateTimeBackKey = dtf.format(LocalDateTime.now());
 
+        Log.d("appkey","Devolvendo chave: "+key.getName());
+
         MainActivity.db.collection("entry")
                 .whereEqualTo("nameKey", key.getName())
                 .whereEqualTo("matUserBackKey", "")
