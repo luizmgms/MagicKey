@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.luiz.mg.magickey.MainActivity;
 import com.luiz.mg.magickey.R;
 import com.luiz.mg.magickey.models.Entry;
@@ -67,6 +69,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
         holder.nameKey.setText(key.getName());
         holder.deptKey.setText(key.getDept());
 
+        //Se a chave está emprestada
         if (key.getBorr()) {
 
             textBor = holder.borr.getContext().getResources().getString(R.string.borrowed)
@@ -78,6 +81,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
                     .getResources().getColor(R.color.red,
                             holder.btnTakeOrBack.getContext().getTheme());
 
+        //Se não está emprestada
         } else {
 
             textBor = holder.borr.getContext().getResources().getString(R.string.no_bor);
@@ -95,23 +99,26 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
         holder.btnTakeOrBack.setText(textBtn);
         holder.btnTakeOrBack.setBackgroundColor(colorBackgroundBtn);
 
+        //Se usuário é null, retirar botão PEGAR/DEVOLVER
         if (user == null ) {
 
             holder.btnTakeOrBack.setVisibility(View.INVISIBLE);
 
         } else {
 
+            //Se existe usuário e a chave está emprestada, a chave deve ser devolvida
             if (key.getBorr()) {
 
-                nameUser = key.getNameBorr().split(" ")[0] + " " +
-                        key.getNameBorr().split(" ")[1];
+                //Nome do usuário que pegou a chave
+                String[] names = key.getNameBorr().split(" ");
+                nameUser = names[0] + " " + names[names.length - 1];
 
+                //Se a matrícula de quem pegou a chave for igual a do usuário
                 if (key.getMatBorr().equals(user.getMat())) {
                     nameUser = "Você";
                 }
 
                 textBor = Utils.BORR + " a " + nameUser;
-
                 holder.borr.setText(textBor);
 
                 holder.btnTakeOrBack.setOnClickListener(view -> {
@@ -119,6 +126,7 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
                     backKey(key, user, holder.btnTakeOrBack.getContext(), "devolver");
                 });
 
+            //Se não está emprestada, então a chave pode ser emprestada
             } else {
 
                 holder.btnTakeOrBack.setOnClickListener(view -> {
@@ -133,8 +141,8 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
 
     /**
      * Método que inicia o processo de pegar uma Chave.
-     * Ele primeiro tentar adicionar uma nova Entry ao FireStore criada a partir dos dados dos
-     * Objetos key e user, se obtiver sucesso, ele chama o método updateKey().
+     * Ele faz as operações de inserção de Entry e Atualização de Chave em lote
+     * Se uma dessas operações falhar o Firebase faz o rollback automaticamente
      * @param key Objeto chave
      * @param user Objeto Usuário
      * @param ctx Contexto da aplicação para exibição de Toasts
@@ -142,59 +150,61 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
      */
     public static void takeKey(Key key, User user, Context ctx, String message) {
 
+        //Data de hora
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dateTimeTakeKey = dtf.format(LocalDateTime.now());
 
+        //Criando nova Entry
         Entry newEntry = new Entry(
                 key.getName(),
                 user.getMat(), user.getName(), dateTimeTakeKey,
                 "", "", ""
         );
 
-        //Add Entry
-        MainActivity.db.collection("entry")
-                .add(newEntry)
-                .addOnSuccessListener(documentReference -> {
-                    /*updateChave*/
-                    updateKey(key, user, ctx, message);
-                }).addOnFailureListener(e ->
-                        Toast.makeText(ctx, "Erro ao tentar "+message+ " chave!",
-                                Toast.LENGTH_SHORT).show());
+        Log.d("appkey", "Iniciando processo de PEGAR CHAVE...");
 
-    }
+        //Gravação em lote
+        WriteBatch batch = MainActivity.db.batch();
 
-    /**
-     * Método que inicia processo de atualização do estado da chave no FireStore.
-     * Dependendo do estado, se está emprestada ou não, ela é atualizada para o contrário.
-     * @param key objeto key
-     * @param u objeto Usuário
-     * @param ctx Contexto da aplicação para exibição de Toasts
-     * @param message String para mensagens Toast
-     */
-    public static void updateKey(Key key, User u,Context ctx, String message) {
+        //Criando Referência do Documento Entry
+        DocumentReference docRefEntry = MainActivity.db.collection("entry").document();
 
-        MainActivity.db.collection("keys").document(key.getName())
-            .update("borr", !key.getBorr(),
-                    "matBorr", u.getMat(), "nameBorr", u.getName())
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(ctx, "Sucesso ao "+message+" chave!",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
-                            Toast.LENGTH_SHORT).show();
-                }
-            })
-            .addOnFailureListener(e ->
-                    Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
-                            Toast.LENGTH_SHORT).show());
+        //Adicionando Entry
+        batch.set(docRefEntry, newEntry);
+
+        //Pegando Referência do Documento Key
+        DocumentReference docRefKey = MainActivity.db.collection("keys")
+                .document(key.getName());
+
+        //Atualizado estado da chave
+        batch.update(docRefKey, "borr", !key.getBorr(),
+                "matBorr", user.getMat(),
+                "nameBorr", user.getName()
+        );
+
+        //Commit transações
+        batch.commit().addOnSuccessListener(unused -> {
+
+            //Sucesso
+            Toast.makeText(ctx, "Sucesso ao "+message+" chave!", Toast.LENGTH_SHORT).show();
+            Log.d("appkey", "Sucesso no processo de PEGAR CHAVE!");
+
+        }).addOnFailureListener(e -> {
+
+                //Falhou, Firebase faz o Rollback automaticamente
+                Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
+                        Toast.LENGTH_SHORT).show();
+                Log.d("appkey", "Erro no processo de PEGAR CHAVE");
+                e.printStackTrace();
+
+        });
 
     }
 
     /**
      * Método que inicia o processo de devolução de uma chave
      * Ele pesquisa no FireStore o id da Entry em aberto (chave não devolvida),
-     * se obtiver sucesso, ele chama o método upDateEntry()
+     * se obtiver sucesso, ele chama o método updateEntry()
      * @param key Objeto Key
      * @param user Objeto Usuário
      * @param ctx  Contexto da aplicação para exibição de Toasts
@@ -205,45 +215,55 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dateTimeBackKey = dtf.format(LocalDateTime.now());
 
-        Log.d("appkey","Devolvendo chave: "+key.getName());
+        Log.d("appkey", "Iniciando processo de DEVOLVER CHAVE...");
 
         MainActivity.db.collection("entry")
                 .whereEqualTo("nameKey", key.getName())
                 .whereEqualTo("matUserBackKey", "")
                 .get()
                 .addOnCompleteListener(task -> {
+
                     if (task.isSuccessful()){
+
                         if (!task.getResult().isEmpty()) {
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
 
                                 String idEntry = document.getId();
 
-                                Log.d("appkey", "idEntry: "+idEntry);
+                                Log.d("appkey", "Chamando Método upDateEntry(idEntry, " +
+                                        "user, dateTimeBackKey, 'devolver')");
 
                                 /*upDateEntry*/
-                                upDateEntry(idEntry, key, user, dateTimeBackKey, ctx, message);
+                                updateEntry(idEntry, key, user, dateTimeBackKey, ctx, message);
 
                             }
 
                         } else {
                             Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
                                     Toast.LENGTH_SHORT).show();
+                            Log.d("appkey", "Erro ao tentar devolver chave dentro de" +
+                                    " backKey(): Task is Empty");
                         }
+
                     } else {
                         Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
                                 Toast.LENGTH_SHORT).show();
+                        Log.d("appkey", "Erro ao tentar devolver chave dentro de" +
+                                " backKey(): Task Failure");
                     }
-                }).addOnFailureListener(e ->
-                        Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
-                                Toast.LENGTH_SHORT).show());
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
+                                Toast.LENGTH_SHORT).show();
+                    Log.d("appkey", "Erro ao tentar devolver chave dentro de" +
+                            " backKey(): Task Failure");
+                });
     }
 
     /**
      * Método que inicia o processo de atualização de uma Entry em aberto (Chave não devolvida).
-     * A Entry é pesquisada no FireStore através da id passada por parâmetro.
-     * Ela é atualizada com as informações do usuário que devolveu a chave.
-     * Se a Entry for atualizada com sucesso, ele chama o método upDateKey().
+     * Ele faz as operações de atualização de Entry e atualização de Chave em lote
+     * Se uma dessas operações falhar o Firebase faz o rollback automaticamente
      * @param idEntry id da Entry a ser atualizada
      * @param key Objeto Key
      * @param user Objeto User
@@ -251,30 +271,45 @@ public class FirestoreRecyclerAdapterForKey extends FirestoreRecyclerAdapter<Key
      * @param ctx Contexto da aplicação para exibição de Toasts
      * @param message  String para mensagens Toast
      */
-    private static void upDateEntry(String idEntry, Key key, User user, String dateTimeBackKey,
+    private static void updateEntry(String idEntry, Key key, User user, String dateTimeBackKey,
                                     Context ctx, String message) {
 
-        MainActivity.db.collection("entry")
-                .document(idEntry)
-                .update("matUserBackKey", user.getMat(),
-                        "nameUserBackKey", user.getName(),
-                        "dateTimeBackKey", dateTimeBackKey)
-                .addOnCompleteListener(task -> {
+        //Atualização em lote
+        WriteBatch batch = MainActivity.db.batch();
 
-                    if (task.isSuccessful()) {
+        //Referência da Entry a ser atualizada
+        DocumentReference docRefEntry = MainActivity.db.collection("entry")
+                .document(idEntry);
 
-                        /*updateKey*/
-                        updateKey(key, user,ctx, message);
+        //Update Entry
+        batch.update(docRefEntry, "matUserBackKey", user.getMat(),
+                "nameUserBackKey", user.getName(),
+                "dateTimeBackKey", dateTimeBackKey);
 
-                    } else {
-                        Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
-                                Toast.LENGTH_SHORT).show();
-                    }
+        //Referência da Key a ser atualizada
+        DocumentReference docRefKey = MainActivity.db.collection("keys")
+                .document(key.getName());
 
-                } ).addOnFailureListener(e ->
-                        Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
-                                Toast.LENGTH_SHORT).show());
+        //Update Key
+        batch.update(docRefKey, "borr", !key.getBorr(),
+                "matBorr", user.getMat(),
+                "nameBorr", user.getName());
 
+        //Commit o lote
+        batch.commit().addOnSuccessListener(unused -> {
+
+            Toast.makeText(ctx, "Sucesso ao "+message+" chave!",
+                    Toast.LENGTH_SHORT).show();
+            Log.d("appkey", "Sucesso no rocesso de DEVOLVER CHAVE!");
+
+        }).addOnFailureListener(e -> {
+
+            Toast.makeText(ctx, "Erro ao tentar "+message+" chave!",
+                    Toast.LENGTH_SHORT).show();
+            Log.d("appkey", "Erro ao tentar atualizar chave!");
+            e.printStackTrace();
+
+        });
     }
 
     /**

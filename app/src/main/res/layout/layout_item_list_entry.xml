@@ -68,6 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/back"
+        android:padding="16dp"
         android:backgroundTint="@color/blue_1"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"

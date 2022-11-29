@@ -128,14 +128,19 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
      * @param ctx Contexto da aplicação para exibição de Toasts
      */
     private void backKey(String nameKey, User u, Context ctx) {
+
         MainActivity.db.collection("keys").document(nameKey)
         .get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 Key k = document.toObject(Key.class);
                 if (document.exists() && k != null) {
-                Log.d("appkey", "Chamando método FirestoreRecyclerAdapterForKey.backKey(key, user, context, 'devolver')");
+
+                Log.d("appkey", "Chamando método " +
+                        "FirestoreRecyclerAdapterForKey.backKey(key, user, context, 'devolver')");
+
                     FirestoreRecyclerAdapterForKey.backKey(k,u, ctx, "devolver");
+
                 } else {
                     Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
                     Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: Document No Exists");

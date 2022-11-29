@@ -96,12 +96,7 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
         //Setando View com nome do usuário
         String[] splitName = name.split(" ");
-        String nameUser;
-
-        if (splitName[1].length() <= 2)
-            nameUser = splitName[0]+" "+splitName[1]+" "+splitName[2];
-        else
-            nameUser = splitName[0]+" "+splitName[1];
+        String nameUser = splitName[0]+ " " +splitName[splitName.length - 1];
 
         nameOfUser.setText(nameUser);
 
