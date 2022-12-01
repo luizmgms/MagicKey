@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.luiz.mg.magickey.MainActivity;
 import com.luiz.mg.magickey.R;
 import com.luiz.mg.magickey.TakeOrBackKeyActivity;
@@ -58,12 +57,15 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
     protected void onBindViewHolder(@NonNull EntryViewHolder holder, int position,
                                     @NonNull Entry entry) {
 
+        //Nome da chave
         String nok = Utils.KEY+" "+entry.getNameKey();
         holder.nameKey.setText(nok);
 
+        //Nome do usuário que pegou a chave
         String nutk = Utils.DELIVERED+" "+entry.getNameUserTakeKey();
         holder.nameUserTakeKey.setText(nutk);
 
+        //Data e hora que a chave foi emprestada
         String dtt = Utils.DAY+" "+entry.getDateTimeTakeKey();
         holder.dateTimeTakeKey.setText(dtt);
 
@@ -71,6 +73,7 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         String textDateTimeBackKey;
         int colorTextBackKey, colorBackground;
 
+        //Se a chave ainda não foi devolvida
         if (entry.getNameUserBackKey().equals("")) {
 
             textNameUserBackKey = holder.nameUserBackKey.getContext().getResources()
@@ -82,6 +85,7 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
                     .getResources().getColor(R.color.red_background_color_entry_key,
                             holder.constraintLayout.getContext().getTheme());
 
+        //Se a chave foi devolvida
         } else {
 
             textNameUserBackKey = Utils.BACKED+" "+entry.getNameUserBackKey();
@@ -99,18 +103,24 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
         holder.dateTimeBackKey.setText(textDateTimeBackKey);
         holder.constraintLayout.setBackgroundColor(colorBackground);
 
+        //Se o usuário é diferente de null
         if (user != null) {
 
+            //Mostrar botão devolver
             holder.btnBackKey.setVisibility(View.VISIBLE);
             holder.btnBackKey.setOnClickListener(view ->
                     backKey(entry.getNameKey(), user, holder.btnBackKey.getContext()));
             String text = "Entregue a você.";
             holder.nameUserTakeKey.setText(text);
 
+
+        //Se usuário é null
         } else {
 
+            //Ocultar botão devolver
             holder.btnBackKey.setVisibility(View.INVISIBLE);
 
+            //Se o usuário é null e a chave não foi devolvida, abrir Activity Principal do Usuário
             if (entry.getNameUserBackKey().equals("")) {
                 holder.constraintLayout.setOnClickListener(view ->
                         openActivity(holder.constraintLayout, entry));
@@ -129,32 +139,39 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
      */
     private void backKey(String nameKey, User u, Context ctx) {
 
+        //Procurar chave no Firebase
         MainActivity.db.collection("keys").document(nameKey)
-        .get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                Key k = document.toObject(Key.class);
-                if (document.exists() && k != null) {
+        .get().addOnSuccessListener(documentSnapshot -> {
+
+            //Se sucesso e o documento existir
+            if (documentSnapshot.exists()) {
+
+                Key k = documentSnapshot.toObject(Key.class);
 
                 Log.d("appkey", "Chamando método " +
                         "FirestoreRecyclerAdapterForKey.backKey(key, user, context, 'devolver')");
 
-                    FirestoreRecyclerAdapterForKey.backKey(k,u, ctx, "devolver");
-
+                if (k !=null) {
+                    //Chamar método backKey()
+                    FirestoreRecyclerAdapterForKey.backKey(k, u, ctx, "devolver");
                 } else {
                     Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
-                    Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: Document No Exists");
+                    Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: " +
+                            "Key null");
                 }
+
             } else {
+
                 Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
-                Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: Task Failure");
+                Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: " +
+                        "Document não existe");
             }
+
         }).addOnFailureListener(e -> {
                 Toast.makeText(ctx, R.string.erro_back_key, Toast.LENGTH_SHORT).show();
                 Log.d("appkey", "Erro ao devolver ainda em EntryAdapter: Task Failure");
                 e.printStackTrace();
         });
-
 
     }
 
@@ -183,11 +200,15 @@ public class FirestoreRecyclerAdapterForEntry extends FirestoreRecyclerAdapter<E
      */
     private void openActivity(View view, Entry entry) {
 
+        //Procurar Objeto User no Firebase
         MainActivity.db.collection("users")
                 .document(entry.getMatUserTakeKey())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
+
+                    //Se sucesso
                     if (documentSnapshot.exists()){
+
                         User u = documentSnapshot.toObject(User.class);
                         if (u != null) {
                             Intent i = new Intent(view.getContext(), TakeOrBackKeyActivity.class);

@@ -90,7 +90,6 @@ public class FirestoreRecyclerAdapterForUser extends FirestoreRecyclerAdapter<Us
             dept = itemView.findViewById(R.id.deptId);
             constraintLayout = itemView.findViewById(R.id.layoutItemListUsersId);
 
-
         }
     }
 }

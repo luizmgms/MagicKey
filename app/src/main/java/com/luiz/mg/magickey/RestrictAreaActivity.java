@@ -214,7 +214,6 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         rViewOfListKey.setAdapter(adapterKey);
 
-
     }
 
     @SuppressLint("InflateParams")

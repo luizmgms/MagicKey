@@ -156,8 +156,10 @@ public class TakeOrBackKeyActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void fillListKeySearch() {
+
         listKeySearch.clear();
         listKeySearch = new ArrayList<>();
+
         MainActivity.db.collection("keys")
                 .get()
                 .addOnCompleteListener(task -> {
