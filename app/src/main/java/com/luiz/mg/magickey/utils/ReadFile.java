@@ -9,8 +9,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Classe responsável por ler os arquivos CSV com a lista de usuários e chaves
+ */
 public class ReadFile {
 
+    /**
+     * Método responsável por ler um arquivo CSV com a lista dos usuários e retorná-los como um
+     * ArrayList
+     * @param path caminho do arquivo
+     * @return ArrayList de Objetos de Usuários
+     */
     public static ArrayList<User> getListUsersOfFile (String path) {
 
         ArrayList<User> list = new ArrayList<>();
@@ -26,11 +35,11 @@ public class ReadFile {
             bufferedReader = new BufferedReader(new FileReader(dir));
             while ((line = bufferedReader.readLine()) != null) {
 
-                String[] user = line.split(div);
+                String[] field = line.split(div);
 
-                User user1 = new User(user[0], user[1], user[2]);
+                User user = new User(field[0], field[1], field[2]);
 
-                list.add(user1);
+                list.add(user);
 
             }
 
@@ -49,6 +58,12 @@ public class ReadFile {
         return list;
     }
 
+    /**
+     * Método responsável por ler um arquivo CSV com a lista das chaves e retorná-las como um
+     * ArrayList
+     * @param path caminho do arquivo
+     * @return ArrayList de Objetos de Chaves
+     */
     public static ArrayList<Key> getListOfKeysOfFile(String path) {
 
         ArrayList<Key> list = new ArrayList<>();
@@ -64,9 +79,9 @@ public class ReadFile {
             bufferedReader = new BufferedReader(new FileReader(dir));
             while ((line = bufferedReader.readLine()) != null) {
 
-                String[] key = line.split(div);
+                String[] field = line.split(div);
 
-                Key k = new Key(key[0], key[1], false, "", "");
+                Key k = new Key(field[0], field[1], false, "", "");
 
                 list.add(k);
 

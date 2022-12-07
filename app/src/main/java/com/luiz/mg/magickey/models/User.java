@@ -1,5 +1,8 @@
 package com.luiz.mg.magickey.models;
 
+/**
+ * Classe modelo para Usuários
+ */
 public class User {
 
     private String mat;

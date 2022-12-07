@@ -17,10 +17,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
 
+/**
+ * Classe responsável por gerar o arquivo PDF dos relatórios que serão enviados por e-mail
+ */
+
 public class MakeFile {
 
     private final File dir;
 
+    /**
+     * Construtor da classe
+     * @param dir Diretório onde será salvo o arquivo
+     */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public MakeFile(File dir) {
         this.dir = dir;
@@ -29,6 +37,13 @@ public class MakeFile {
             dir.mkdirs();
     }
 
+    /**
+     * Método responsável por criar o arquivo PDF a partir de um recyclerView preenchido
+     * @param recyclerView lista da entradas
+     * @param fileName nome do arquivo
+     * @param ref referncia do relatório
+     * @return 1 se o arquivo foi criado com sucesso e -1 se falhou
+     */
     public int createPdf(RecyclerView recyclerView, String fileName, String ref) {
 
 
@@ -39,7 +54,7 @@ public class MakeFile {
         int num_of_page = 1;
 
         //Posição linha (Eixo Y)
-        int pos_y = 40;
+        int pos_y = Utils.MARGIN_TOP;
 
         //Informações da página
         PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
@@ -54,8 +69,7 @@ public class MakeFile {
         paint.setColor(Color.BLACK);
 
         //Cabeçalho
-        canvas.drawText("Relatório de Empréstimos de Chaves", Utils.MARGIN_START,
-                pos_y, paint);
+        canvas.drawText(Utils.TITLE_REPORT, Utils.MARGIN_START, pos_y, paint);
         pos_y = pos_y + 16;
 
         canvas.drawText("Referência: "+ref, Utils.MARGIN_START, pos_y,
@@ -99,7 +113,7 @@ public class MakeFile {
                 paint.setColor(Color.BLACK);
 
                 //Reinicinando posição Y
-                pos_y = 40;
+                pos_y = Utils.MARGIN_TOP;
             }
 
             //Nome da chave
@@ -122,8 +136,8 @@ public class MakeFile {
             pos_y = pos_y + 16;
 
             //Desenhar número da página
-            canvas.drawText(num_of_page+"", Utils.PAGE_WIDTH - 40,
-                    Utils.PAGE_HEIGHT - 20, paint);
+            canvas.drawText(num_of_page+"", Utils.PAGE_WIDTH - Utils.MARGIN_TOP,
+                    Utils.PAGE_HEIGHT - Utils.MARGIN_START, paint);
 
         }
 

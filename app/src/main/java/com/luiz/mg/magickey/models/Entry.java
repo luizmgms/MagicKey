@@ -1,5 +1,9 @@
 package com.luiz.mg.magickey.models;
 
+/**
+ * Classe modelo para Entradas e Saídas de chaves
+ */
+
 public class Entry {
 
     private String nameKey;

@@ -1,5 +1,9 @@
 package com.luiz.mg.magickey.models;
 
+
+/**
+ * Classe modelo para Chaves
+ */
 public class Key {
 
     private String name;

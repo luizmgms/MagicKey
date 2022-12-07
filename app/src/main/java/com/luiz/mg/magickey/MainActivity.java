@@ -50,7 +50,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-
+/**
+ * Atividade principal, o app se inicia por aqui.
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ConstraintLayout progressBar;
 
     String dateTime, dateTime1;
-    String sFilter = "Dia";
+    String sFilter = Utils.DAY;
 
     Spinner spinnerFilter;
 
@@ -77,25 +79,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public static SharedPreferences preferences;
 
-    @SuppressLint("SimpleDateFormat")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         //Preferences
-        preferences = getSharedPreferences("appkey", MODE_PRIVATE);
+        preferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
 
         //Autenticação no Firebase anonimamente
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
-                        Log.d("appkey", "signInAnonymously:success");
+                        Log.d(Utils.APP_KEY, "signInAnonymously:success");
                         //FirebaseUser user = mAuth.getCurrentUser();
                     } else {
                         // If sign in fails, display a message to the user.
-                        Log.w("appkey", "signInAnonymously:failure", task.getException());
+                        Log.w(Utils.APP_KEY, "signInAnonymously:failure", task.getException());
 
                     }
                 });
@@ -107,13 +108,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FloatingActionButton floatBtnLock = findViewById(R.id.lockButtonId);
         floatBtnLock.setOnClickListener(view -> enterAreaLock());
 
-        //Layout do BottomSheet
+        //Layout do BottomSheet (Entradas)
          ConstraintLayout layoutBottomSheet = findViewById(R.id.layoutBottomSheetId);
 
         //Comportamento do BottomSheet
         bottomSheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
 
-        //Pegando data do dia
+        //Pegando data e hora do dia
         DateTimeFormatter dtf1 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         DateTimeFormatter dtf2 = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
         dateTime = dtf1.format(LocalDateTime.now());
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvDate.setText(dateTimeSplit[0]);
         tvDate.setOnClickListener(view -> showDatePickerDialog(tvDate));
 
-        //Callback da mudança de Estado
+        //Callback da mudança de estado bo bottom sheet
         bottomSheetBehavior.addBottomSheetCallback(callbackSheetBehavior());
 
         //RecyclerView de Entry
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         floatBtnListOfEntries.setOnClickListener(view ->
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED));
 
-        //Floating Botão Salvar Relatório
+        //Botão Salvar e Enviar Relatório
         FloatingActionButton fabSaveReport = findViewById(R.id.btnShareReportId);
         fabSaveReport.setOnClickListener(view -> {
             if (Objects.requireNonNull(recyclerListOfEntry.getAdapter()).getItemCount() == 0) {
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        //Spinner do filtro
         spinnerFilter = findViewById(R.id.spinnerFilterId);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.filter, android.R.layout.simple_spinner_item);
@@ -196,11 +198,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * Método para login do usuário
+     * Ele pesquisa se o usuário existe no banco de dados.
+     * Se existir, ele chama o método openTakeOrBackKeysActivity(),
+     * Se não, exibe uma mensagem de erro.
+     */
     private void logIn(){
 
         if (userId.equals("")) {
 
-            showAlert("Campo Vazio!", "Entre com o Nº de sua Matrícula ou CPF", false);
+            showAlert("Campo Vazio!", "Entre com o Nº de sua Matrícula ou CPF",
+                    false);
 
         } else {
 
@@ -226,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
 
-                                Log.d("appkey", document.getId() + " => "
+                                Log.d(Utils.APP_KEY, document.getId() + " => "
                                         + document.getData());
 
                                 User user = document.toObject(User.class);
@@ -246,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         progressBar.setVisibility(View.INVISIBLE);
                         showAlert("Falha!", Objects.requireNonNull(task.getException())
                                 .getMessage(), false);
-                        Log.d("appkey", task.getException().getMessage());
+                        Log.d(Utils.APP_KEY, task.getException().getMessage());
 
                     }
                 });
@@ -254,6 +263,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Método responsável por preencher o RecyclerView das Entry de acordo com filtro aplicado
+     * @param filter String com o filtro a ser aplicado
+     */
     private void fillListEntry(String filter) {
 
         String[] dateTime = tvDate.getText().toString().split(" ");
@@ -273,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (filter.equals(Utils.DAY)) {
             query = db.collection("entry")
-                    .whereEqualTo("dia", dia)
+                    .whereEqualTo(Utils.DAY, dia)
                     .whereEqualTo("mes", mes)
                     .whereEqualTo("ano", ano)
                     .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
@@ -302,6 +315,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapterEntry.startListening();
     }
 
+    /**
+     * Método responsável por abrir a Activity TakeOrBackKeysActivity
+     * @param user Objeto Usuário que fez o login
+     */
     private void openTakeOrBackKeysActivity(User user) {
         Intent i = new Intent(MainActivity.this, TakeOrBackKeyActivity.class);
         i.putExtra(Utils.NAME_USER, user.getName());
@@ -310,6 +327,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(i);
     }
 
+    /**
+     * Método responsável por abrir a Activity RestrictAreaActivity
+     */
     private void enterAreaLock(){
 
         Intent intent = new Intent(MainActivity.this, RestrictAreaActivity.class);
@@ -317,10 +337,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * Método resonsável por gerar e salvar o relátorio e enviá-lo por e-mail
+     * Ele verifica se existe endereços de e-mails cadastrados para onde serão enviados os relatórios
+     * Verifica também se existe permissão de gravação no dispositivo
+     * @param recyclerView RecyclerView com a lista das Entry
+     */
     private void saveAndSendReport (RecyclerView recyclerView) {
 
         //Get Preferences
-        SharedPreferences sharedPreferences = getSharedPreferences("appkey", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
 
         //Pegar email
         String emailToSendReport = sharedPreferences.getString("email", "");
@@ -398,9 +424,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void sendEmail(String referencia, File dir, String fileName) {
+    /**
+     * Método responsável pelo envio do e-mail com o relatório em anexo
+     * @param ref referência do relatório gerado
+     * @param dir diretório onde o relatório foi salvo
+     * @param fileName nome do arquivo
+     */
+    private void sendEmail(String ref, File dir, String fileName) {
 
-        SharedPreferences preferences = getSharedPreferences("appkey", MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
 
         String emails = preferences.getString("email", "");
 
@@ -412,11 +444,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         intent.putExtra(
                 Intent.EXTRA_SUBJECT,
-                "Relatório de Movimentações de Chaves-"+ referencia);
+                "Relatório de Movimentações de Chaves-"+ ref);
 
         intent.putExtra(Intent.EXTRA_TEXT,
                 "Segue em anexo relatório com movimentações de chaves.\nReferência: "
-                        + referencia+"\n\nEnviado do App MagicKey");
+                        + ref+"\n\nEnviado do App MagicKey");
 
         intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+dir+fileName));
 
@@ -570,12 +602,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         sFilter = adapterView.getItemAtPosition(i).toString();
-        Log.d("appkey", "Filtro: " + sFilter);
+        Log.d(Utils.APP_KEY, "Filtro: " + sFilter);
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-        sFilter = "Dia";
+        sFilter = Utils.DAY;
     }
 
     @SuppressLint("NonConstantResourceId")
