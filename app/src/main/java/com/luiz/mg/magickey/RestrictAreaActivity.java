@@ -371,45 +371,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
             @Override
             protected boolean onClicked() {
-                return addEmails(itEmails, preferences);
+                return MainActivity.addEmails(itEmails);
             }
         });
-
-    }
-
-    private boolean addEmails (TextInputEditText emails, SharedPreferences pref) {
-
-        String strEmails = Objects.requireNonNull(emails.getText()).toString();
-
-        if (!Objects.requireNonNull(emails.getText()).toString().contains("\n"))
-            strEmails = strEmails+"\n";
-
-        String[] aOfEmails = strEmails.split("\n");
-
-        if (aOfEmails.length == 0) {
-            emails.setError("Email inválido!");
-            return false;
-        } else {
-            for (String e: aOfEmails) {
-                if (!e.contains("@")) {
-                    emails.setError("Algum email inválido!");
-                    return false;
-                }
-            }
-
-            boolean status = pref.edit().putString("email",
-                    Objects.requireNonNull(emails.getText()).toString()).commit();
-
-            if (status) {
-                Toast.makeText(this, "Email(s) cadastrado(s) com sucesso!",
-                        Toast.LENGTH_SHORT).show();
-                return true;
-            } else {
-                Toast.makeText(this, "Erro ao cadastradar!",
-                        Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        }
 
     }
 
@@ -489,7 +453,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     private void addUserInDatabase(User user, AlertDialog dialog) {
 
-        MainActivity.db.collection("users").document(user.getMat()).set(user)
+        MainActivity.db.collection("users")
+            .document(user.getMat())
+            .set(user)
             .addOnSuccessListener(documentReference -> {
 
                 if (dialog != null)

@@ -75,11 +75,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     FirestoreRecyclerAdapterForEntry adapterEntry;
 
+    public static SharedPreferences preferences;
+
     @SuppressLint("SimpleDateFormat")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Preferences
+        preferences = getSharedPreferences("appkey", MODE_PRIVATE);
 
         //Autenticação no Firebase anonimamente
         mAuth.signInAnonymously()
@@ -484,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private boolean addEmails(TextInputEditText itEmail) {
+    public static boolean addEmails(TextInputEditText itEmail) {
 
         String strEmails = Objects.requireNonNull(itEmail.getText()).toString();
 
@@ -507,18 +512,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
 
-            SharedPreferences preferences = getSharedPreferences(
-                    "appkey", MODE_PRIVATE);
-
             boolean success = preferences.edit().putString(
                     "email", itEmail.getText().toString()).commit();
 
             if (success) {
-                Toast.makeText(this, "Email(s) cadastrado(s) com sucesso!",
+                Toast.makeText(itEmail.getContext(), "Email(s) cadastrado(s) com sucesso!",
                         Toast.LENGTH_SHORT).show();
                 return true;
             } else {
-                Toast.makeText(this, "Erro ao cadastradar!",
+                Toast.makeText(itEmail.getContext(), "Erro ao cadastradar!",
                         Toast.LENGTH_SHORT).show();
                 return false;
             }
