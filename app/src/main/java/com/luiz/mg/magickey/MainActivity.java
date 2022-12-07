@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setQuery(query, Entry.class)
                 .build();
 
-        //FirestoreRecyclerAdapter para Chave
+        //FirestoreRecyclerAdapter para Entry
         adapterEntry = null;
         adapterEntry = new FirestoreRecyclerAdapterForEntry(optionsEntry, null);
 

@@ -467,7 +467,6 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                     Toast.LENGTH_SHORT).show());
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private boolean addNewUser(TextInputEditText mat, TextInputEditText name, AlertDialog dialog) {
 
         if (Objects.requireNonNull(mat.getText()).toString().equals("")) {
@@ -498,7 +497,6 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private boolean addNewKey(TextInputEditText nameKey, AlertDialog dialog) {
 
         if (Objects.requireNonNull(nameKey.getText()).toString().equals("")) {
