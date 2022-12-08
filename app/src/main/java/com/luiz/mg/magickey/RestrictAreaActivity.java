@@ -42,6 +42,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * Atividade de Área Restrita
+ * Nesta atividade é possível listar usuários e chaves, cadastrar usuários e chaves
+ * cadastrar email de envio de relatórios
+ */
 public class RestrictAreaActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
@@ -53,6 +58,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
     FirestoreRecyclerAdapterForUser adapterUser;
     FirestoreRecyclerAdapterForKey adapterKey;
 
+    //O que fazer com o resultado da escolha de arquivo é declarado abaixo
     ActivityResultLauncher<String> mGetContent =
         registerForActivityResult(new ActivityResultContracts.GetContent(),
 
@@ -96,6 +102,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         //Título da Lista
         titleList = findViewById(R.id.titleListId);
 
+        //Botões
         Button btnAddUser = findViewById(R.id.btnAddUserId);
         Button btnAddKey = findViewById(R.id.btnAddKeyId);
         Button btnListUsers = findViewById(R.id.btnListUsersId);
@@ -104,6 +111,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         Button btnAddKeysLot = findViewById(R.id.btnAddKeysLotId);
         Button btnAddEmails = findViewById(R.id.btnAddEmailsId);
 
+        //Título da lista
         titleList.setText(R.string.title_list_user);
 
         //SetListUser
@@ -112,6 +120,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         //setListKey
         setViewListKey();
 
+        //Clique dos botões
         btnAddUser.setOnClickListener(this);
         btnListUsers.setOnClickListener(this);
         btnListKeys.setOnClickListener(this);
@@ -159,16 +168,25 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    /**
+     * Método responsável por exibir a lista de usuários
+     */
     private void showListUsers() {
         rViewOfListKey.setVisibility(View.INVISIBLE);
         rViewOfListUser.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Método responsável por exibir a lista de chaves
+     */
     private void showListKeys() {
         rViewOfListUser.setVisibility(View.INVISIBLE);
         rViewOfListKey.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Método responsável por preencher a lista de usuários
+     */
     private void setViewListUser() {
 
         //Lista de Usuários
@@ -178,7 +196,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         rViewOfListUser.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL));
 
-        Query query = MainActivity.db.collection("users")
+        Query query = MainActivity.db.collection(Utils.NAME_COLLECTION_USERS)
                 .orderBy("name", Query.Direction.ASCENDING);
 
         //FirebaseRecyclerOptions
@@ -193,6 +211,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     }
 
+    /**
+     * Método responsável por preencher a lista de chaves
+     */
     private void setViewListKey() {
 
         //Lista de Chaves
@@ -202,7 +223,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         rViewOfListKey.addItemDecoration( new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL));
 
-        Query query = MainActivity.db.collection("keys");
+        Query query = MainActivity.db.collection(Utils.NAME_COLLECTION_KEYS);
 
         //FirebaseRecyclerOptions
         FirestoreRecyclerOptions<Key> optionsKey = new FirestoreRecyclerOptions.Builder<Key>()
@@ -216,6 +237,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     }
 
+    /**
+     * Método responsável por mostrar a caixa de diálogo para cadastar usuário
+     */
     @SuppressLint("InflateParams")
     private void showDialogAddUser(){
 
@@ -272,6 +296,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     }
 
+    /**
+     * Método responsável por mostrar a caixa de diálogo para cadastar chave
+     */
     @SuppressLint("InflateParams")
     private void showDialogAddKey(){
 
@@ -327,6 +354,10 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         });
     }
 
+    /**
+     * Método responsável por mostrar a caixa de diálogo para cadastar os endereços de email para
+     * onde serão enviados os relatórios
+     */
     @SuppressLint("InflateParams")
     private void showDialogAddEmails() {
 
@@ -341,7 +372,7 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         //Definição dos Campos
         final TextInputEditText itEmails = inflate.findViewById(R.id.emailsId);
 
-        SharedPreferences preferences = getSharedPreferences("appkey", MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
 
         itEmails.setText(preferences.getString("email",""));
 
@@ -377,83 +408,88 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
     }
 
+    /**
+     * Método responsável por veridificar se o usuário já está cadastrado banco
+     * @param user Objeto User
+     * @param dialog AlertDialog
+     */
     private void consultUser (User user, AlertDialog dialog) {
 
-        MainActivity.db.collection("users")
-                .document(user.getMat())
-                .get()
-                .addOnCompleteListener(task -> {
+        MainActivity.db.collection(Utils.NAME_COLLECTION_USERS)
+            .document(user.getMat())
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
 
-                    if (task.isSuccessful()) {
+                //Se o documento existir, o usuário já está cadastrado
+                if (documentSnapshot.exists()) {
 
-                        if (task.getResult().exists()) {
+                    Toast.makeText(this, R.string.user_exists, Toast.LENGTH_SHORT)
+                            .show();
 
-                            Toast.makeText(this, R.string.user_exists, Toast.LENGTH_SHORT)
-                                    .show();
+                //Se não, Adicionar no banco de dados
+                } else {
 
-                        } else {
+                    addUserInDatabase(user, dialog);
 
-                            addUserInDatabase(user, dialog);
+                }
 
-                        }
-
-                    } else {
-
-                        Toast.makeText(this, "Falha!", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Falha!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            });
 
     }
 
+    /**
+     * Método responsável por consultar uma chave no banco de dados
+     * @param key Objeto Chave
+     * @param dialog AlertDialog
+     */
     private void consultKey (Key key, AlertDialog dialog) {
 
         MainActivity.db.collection("keys")
-                .whereEqualTo("name", key.getName())
-                .get()
-                .addOnCompleteListener(task -> {
+            .document(key.getName())
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
 
-                    if (task.isSuccessful()) {
+                //Se a chave existir, ela stá cadastrada
+                if (documentSnapshot.exists()) {
 
-                        if (task.getResult().isEmpty()) {
+                    Toast.makeText(this, R.string.key_exists, Toast.LENGTH_SHORT)
+                            .show();
 
-                            addKeyInDatabase(key, dialog);
+                //Se não, Adicionar chave no banco de dados
+                } else {
 
-                        } else {
+                    addKeyInDatabase(key, dialog);
 
-                            Toast.makeText(this, R.string.key_exists, Toast.LENGTH_SHORT)
-                                    .show();
+                }
 
-                        }
-
-                    } else {
-
-                        Toast.makeText(this, "Falha!", Toast.LENGTH_SHORT).show();
-
-                    }
-
-
-                });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Falha!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            });
     }
 
     private void addKeyInDatabase(Key key, AlertDialog dialog) {
 
-        MainActivity.db.collection("keys").document(key.getName()).set(key)
+        MainActivity.db.collection(Utils.NAME_COLLECTION_KEYS).document(key.getName()).set(key)
             .addOnSuccessListener(documentReference -> {
 
                 if (dialog != null)
                     dialog.dismiss();
 
-                Toast.makeText(this, R.string.add_key_succes, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.add_key_succes, Toast.LENGTH_SHORT)
+                        .show();
 
-            }).addOnFailureListener(e -> Toast.makeText(this, R.string.add_key_erro,
+            }).addOnFailureListener(e -> Toast.makeText(this, "Falha!",
                         Toast.LENGTH_SHORT).show());
 
     }
 
     private void addUserInDatabase(User user, AlertDialog dialog) {
 
-        MainActivity.db.collection("users")
+        MainActivity.db.collection(Utils.NAME_COLLECTION_USERS)
             .document(user.getMat())
             .set(user)
             .addOnSuccessListener(documentReference -> {

@@ -35,7 +35,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForEntry;
 import com.luiz.mg.magickey.fragments.DatePickerFragment;
 import com.luiz.mg.magickey.models.Entry;
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //FirebaseUser user = mAuth.getCurrentUser();
                     } else {
                         // If sign in fails, display a message to the user.
-                        Log.w(Utils.APP_KEY, "signInAnonymously:failure", task.getException());
+                        Log.d(Utils.APP_KEY, "signInAnonymously:failure", task.getException());
 
                     }
                 });
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dateTime = dtf1.format(LocalDateTime.now());
         dateTime1 = dtf2.format(LocalDateTime.now());
 
-        //Setando TextView Date com a data do dia.
+        //Setando TextViewDate com a data do dia.
         tvDate = findViewById(R.id.dateOfFilterId);
         String[] dateTimeSplit = dateTime.split(" ");
         tvDate.setText(dateTimeSplit[0]);
@@ -163,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button btnFiltar = findViewById(R.id.btnFilterEntryId);
         btnFiltar.setOnClickListener(view -> fillListEntry(sFilter));
 
-        //Matrícula
+        //Matrícula ou CPF
         textViewUserId = findViewById(R.id.inputTextId);
 
         Button btn0 = findViewById(R.id.button0Id);
@@ -217,47 +216,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             progressBar.setVisibility(View.VISIBLE);
 
             //Consultar Usuário
-            db.collection("users")
-                .whereEqualTo("mat", userId)
-                .get()
-                .addOnCompleteListener(task -> {
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
 
-                    if (task.isSuccessful()) {
+                    userId = "";
+                    textViewUserId.setText(userId);
+                    progressBar.setVisibility(View.INVISIBLE);
 
-                        if (task.getResult().isEmpty()) {
+                    //Se o usuário existe
+                    if (documentSnapshot.exists()) {
 
-                            userId = "";
-                            textViewUserId.setText(userId);
-                            progressBar.setVisibility(View.INVISIBLE);
-                            showAlert("Erro de Login!", "Usuário não encontrado!", false);
+                        //Documento para Objeto User
+                        User user = documentSnapshot.toObject(User.class);
 
+                        //Se user for diferente de null
+                        if (user != null) {
+
+                            //Abrir Activity
+                            openTakeOrBackKeysActivity(user);
+
+                        //Se user igual a null
                         } else {
-
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-
-                                Log.d(Utils.APP_KEY, document.getId() + " => "
-                                        + document.getData());
-
-                                User user = document.toObject(User.class);
-
-                                userId = "";
-                                textViewUserId.setText(userId);
-                                progressBar.setVisibility(View.INVISIBLE);
-                                openTakeOrBackKeysActivity(user);
-
-                            }
+                            //Erro!
+                            showAlert("Erro de Login!", "Usuário não encontrado!",
+                                    false);
                         }
 
+                    //Se usuário não existe
                     } else {
 
-                        userId = "";
-                        textViewUserId.setText(userId);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        showAlert("Falha!", Objects.requireNonNull(task.getException())
-                                .getMessage(), false);
-                        Log.d(Utils.APP_KEY, task.getException().getMessage());
+                        //Erro!
+                        showAlert("Erro de Login!", "Usuário não encontrado!",
+                                false);
 
                     }
+                }).addOnFailureListener(e -> {
+                    Log.d(Utils.APP_KEY, "Falha a consultar FireBase!");
+                    e.printStackTrace();
+                    Toast.makeText(this, "Falha", Toast.LENGTH_SHORT).show();
                 });
 
         }
@@ -285,20 +281,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Query query;
 
         if (filter.equals(Utils.DAY)) {
-            query = db.collection("entry")
-                    .whereEqualTo(Utils.DAY, dia)
-                    .whereEqualTo("mes", mes)
-                    .whereEqualTo("ano", ano)
+            query = db.collection(Utils.NAME_COLLECTION_ENTRY)
+                    .whereEqualTo(Utils.LOWER_DAY, dia)
+                    .whereEqualTo(Utils.LOWER_MONTH, mes)
+                    .whereEqualTo(Utils.LOWER_YEAR, ano)
                     .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
 
         } else if (filter.equals(Utils.MONTH)) {
-            query = db.collection("entry")
-                    .whereEqualTo("mes", mes)
-                    .whereEqualTo("ano", ano)
+            query = db.collection(Utils.NAME_COLLECTION_ENTRY)
+                    .whereEqualTo(Utils.LOWER_MONTH, mes)
+                    .whereEqualTo(Utils.LOWER_YEAR, ano)
                     .orderBy("dateTimeTakeKey", Query.Direction.ASCENDING);
         } else {
-            query = db.collection("entry")
-                    .whereEqualTo("ano", ano)
+            query = db.collection(Utils.NAME_COLLECTION_ENTRY)
+                    .whereEqualTo(Utils.LOWER_YEAR, ano)
                     .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
         }
 
@@ -376,7 +372,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //Diretório de salvamento dos relatórios
                 File dir = new File(
-                        Environment.getExternalStorageDirectory() + Utils.DIRECTORY_REPORTS);
+                        Environment.getExternalStorageDirectory() +
+                                Utils.DIRECTORY_REPORTS);
 
                 MakeFile makeFile = new MakeFile(dir);
 
@@ -412,7 +409,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             getApplicationContext(), Utils.SAVE_SUCCESS, Toast.LENGTH_SHORT).show();
 
                     //Enviar e-mail
-                    sendEmail(ref, dir, "/Relatório-" + sFilter + "-" + date_ref_for_file + ".pdf");
+                    sendEmail(ref, dir, "/Relatório-" + sFilter + "-" + date_ref_for_file +
+                            ".pdf");
 
                 } else {
 
@@ -544,6 +542,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
 
+            //Adicionar as preferences
             boolean success = preferences.edit().putString(
                     "email", itEmail.getText().toString()).commit();
 
@@ -568,6 +567,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN) {
 
+                    spinnerFilter.setSelection(0);
                     sFilter = Utils.DAY;
                     DateTimeFormatter dT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
                     String dt = dT.format(LocalDateTime.now());

@@ -38,4 +38,10 @@ public class Utils {
      public static final String BORR = "Emprestada";
 
      public static final String APP_KEY = "appkey";
+     public static final String NAME_COLLECTION_ENTRY = "entry";
+     public static final String NAME_COLLECTION_USERS = "users";
+     public static final String NAME_COLLECTION_KEYS = "keys";
+     public static final String LOWER_DAY = "dia";
+     public static final String LOWER_MONTH = "mes";
+     public static final String LOWER_YEAR = "ano";
 }
