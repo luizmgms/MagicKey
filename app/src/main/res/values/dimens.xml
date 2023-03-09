@@ -12,7 +12,7 @@
     <dimen name="pad_btn">16dp</dimen>
     <dimen name="marg_btn">8dp</dimen>
     <dimen name="pad_main">16dp</dimen>
-    <dimen name="tam_titles">50sp</dimen>
+    <dimen name="tam_titles">36sp</dimen>
     <dimen name="tam_subtitles">30sp</dimen>
     <dimen name="tam_topics">30sp</dimen>
     <dimen name="margin_subtitle_topic">32dp</dimen>

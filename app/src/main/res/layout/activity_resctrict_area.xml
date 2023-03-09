@@ -92,6 +92,16 @@
         app:layout_constraintStart_toEndOf="@id/btnAddUsersLotId"
         app:layout_constraintTop_toTopOf="@id/btnAddUsersLotId" />
 
+    <Button
+        android:id="@+id/btnAddEmailsId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:text="@string/add_email_to_send_report"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnAddUsersLotId"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <TextView
         android:id="@+id/titleListId"
         android:layout_width="wrap_content"
@@ -101,22 +111,10 @@
         android:text="@string/title_list_user"
         android:textSize="@dimen/tam_title_restrict"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnAddUsersLotId" />
-
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/editTextSearchId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/marg_btn"
-        android:autofillHints=""
-        android:drawableStart="@drawable/ic_baseline_search_24"
-        android:hint="@string/search"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="@id/titleListId"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/btnAddEmailsId" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/listItemId"
+        android:id="@+id/listUserId"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -127,5 +125,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleListId"
         tools:listitem="@layout/layout_item_list_users" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listKeyId"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:visibility="invisible"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleListId"
+        tools:listitem="@layout/layout_item_list_keys"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

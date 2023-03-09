@@ -1,32 +1,45 @@
 package com.luiz.mg.magickey.models;
 
+/**
+ * Classe modelo para Entradas e Saídas de chaves
+ */
+
 public class Entry {
 
     private String nameKey;
 
     private String matUserTakeKey;
     private String nameUserTakeKey;
-    private String dateTakeKey;
-    private String timeTakeKey;
+    private String dateTimeTakeKey;
+
+    private String dia, mes, ano;
 
     private String matUserBackKey;
     private String nameUserBackKey;
-    private String dateBackKey;
-    private String timeBackKey;
+    private String dateTimeBackKey;
+
+    public Entry() {
+    }
 
     public Entry(String nameKey, String matUserTakeKey, String nameUserTakeKey,
-                 String dateTakeKey, String timeTakeKey, String matUserBackKey,
-                 String nameUserBackKey, String dateBackKey, String timeBackKey) {
+                 String dateTimeTakeKey, String matUserBackKey, String nameUserBackKey,
+                 String dateTimeBackKey) {
 
         this.nameKey = nameKey;
+
         this.matUserTakeKey = matUserTakeKey;
         this.nameUserTakeKey = nameUserTakeKey;
-        this.dateTakeKey = dateTakeKey;
-        this.timeTakeKey = timeTakeKey;
+        this.dateTimeTakeKey = dateTimeTakeKey;
+
+        String[] dateTime = this.dateTimeTakeKey.split(" ");
+        String[] date = dateTime[0].split("/");
+        this.dia = date[0];
+        this.mes = date[1];
+        this.ano = date[2];
+
         this.matUserBackKey = matUserBackKey;
         this.nameUserBackKey = nameUserBackKey;
-        this.dateBackKey = dateBackKey;
-        this.timeBackKey = timeBackKey;
+        this.dateTimeBackKey = dateTimeBackKey;
     }
 
     public String getNameKey() {
@@ -53,20 +66,12 @@ public class Entry {
         this.nameUserTakeKey = nameUserTakeKey;
     }
 
-    public String getDateTakeKey() {
-        return dateTakeKey;
+    public String getDateTimeTakeKey() {
+        return dateTimeTakeKey;
     }
 
-    public void setDateTakeKey(String dateTakeKey) {
-        this.dateTakeKey = dateTakeKey;
-    }
-
-    public String getTimeTakeKey() {
-        return timeTakeKey;
-    }
-
-    public void setTimeTakeKey(String timeTakeKey) {
-        this.timeTakeKey = timeTakeKey;
+    public void setDateTimeTakeKey(String dateTimeTakeKey) {
+        this.dateTimeTakeKey = dateTimeTakeKey;
     }
 
     public String getMatUserBackKey() {
@@ -85,19 +90,35 @@ public class Entry {
         this.nameUserBackKey = nameUserBackKey;
     }
 
-    public String getDateBackKey() {
-        return dateBackKey;
+    public String getDateTimeBackKey() {
+        return dateTimeBackKey;
     }
 
-    public void setDateBackKey(String dateBackKey) {
-        this.dateBackKey = dateBackKey;
+    public void setDateTimeBackKey(String dateTimeBackKey) {
+        this.dateTimeBackKey = dateTimeBackKey;
     }
 
-    public String getTimeBackKey() {
-        return timeBackKey;
+    public String getDia() {
+        return dia;
     }
 
-    public void setTimeBackKey(String timeBackKey) {
-        this.timeBackKey = timeBackKey;
+    public void setDia(String dia) {
+        this.dia = dia;
+    }
+
+    public String getMes() {
+        return mes;
+    }
+
+    public void setMes(String mes) {
+        this.mes = mes;
+    }
+
+    public String getAno() {
+        return ano;
+    }
+
+    public void setAno(String ano) {
+        this.ano = ano;
     }
 }

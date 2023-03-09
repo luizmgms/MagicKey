@@ -1,23 +1,34 @@
 package com.luiz.mg.magickey.reports;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
+import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.luiz.mg.magickey.R;
 import com.luiz.mg.magickey.utils.Utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
+
+/**
+ * Classe responsável por gerar o arquivo PDF dos relatórios que serão enviados por e-mail
+ */
 
 public class MakeFile {
 
     private final File dir;
 
+    /**
+     * Construtor da classe
+     * @param dir Diretório onde será salvo o arquivo
+     */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public MakeFile(File dir) {
         this.dir = dir;
@@ -26,111 +37,132 @@ public class MakeFile {
             dir.mkdirs();
     }
 
-    public int savePdf(Bitmap bitmap, String fileName, String ref) {
+    /**
+     * Método responsável por criar o arquivo PDF a partir de um recyclerView preenchido
+     * @param recyclerView lista da entradas
+     * @param fileName nome do arquivo
+     * @param ref referncia do relatório
+     * @return 1 se o arquivo foi criado com sucesso e -1 se falhou
+     */
+    public int createPdf(RecyclerView recyclerView, String fileName, String ref) {
 
-        int widthA4 = Utils.PAGE_WIDTH;
-        int heightA4 = Utils.PAGE_HEIGHT;
 
-        //Número de páginas
-        int numOfPages = (bitmap.getHeight()/heightA4) + 1;
+        //Criar Documento pdf
+        PdfDocument pdfDocument = new PdfDocument();
 
-        Bitmap[] bitmaps = new Bitmap[numOfPages];
+        //Número da página
+        int num_of_page = 1;
 
-        int heightBitmap = bitmap.getHeight()/numOfPages;
+        //Posição linha (Eixo Y)
+        int pos_y = Utils.MARGIN_TOP;
 
-        File file = new File(dir, fileName + ".pdf");
+        //Informações da página
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
+                Utils.PAGE_WIDTH, Utils.PAGE_HEIGHT, num_of_page).create();
 
-        PdfDocument filePdf = new PdfDocument();
-        Paint title = new Paint();
+        //Começar a 1ª página
+        PdfDocument.Page newPage = pdfDocument.startPage(pageInfo);
 
-        for (int i = 0; i < numOfPages; ++i) {
+        //Canvas
+        Canvas canvas = newPage.getCanvas();
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
 
-            //Paginação
-            String pag = (i + 1) +"/"+ numOfPages;
+        //Cabeçalho
+        canvas.drawText(Utils.TITLE_REPORT, Utils.MARGIN_START, pos_y, paint);
+        pos_y = pos_y + 16;
 
-            //Primeira Página
-            if (i == 0) {
+        canvas.drawText("Referência: "+ref, Utils.MARGIN_START, pos_y,
+                paint);
+        pos_y = pos_y + 32;
 
-                //Composição da página
-                PdfDocument.PageInfo infoPdf = new PdfDocument.PageInfo.Builder(
-                        widthA4, heightA4, i)
-                        .create();
 
-                //Começar página
-                PdfDocument.Page pagePdf = filePdf.startPage(infoPdf);
-                Canvas canvas = pagePdf.getCanvas();
 
-                //Title
-                title.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-                title.setTextSize(15);
+        int tam = Objects.requireNonNull(recyclerView.getAdapter()).getItemCount();
 
-                canvas.drawText(Utils.TITLE_REPORT, Utils.MARGIN_START,
-                        Utils.MARGIN_TOP, title);
+        for (int i = 0; i < tam; i++) {
 
-                //Subtitle
-                canvas.drawText("Referente a: "+ref, Utils.MARGIN_START,
-                        Utils.MARGIN_TOP + 20, title);
+            RecyclerView.ViewHolder holder = recyclerView.getAdapter()
+                    .createViewHolder(recyclerView,
+                            recyclerView.getAdapter().getItemViewType(i));
 
-                //Bitmap
-                bitmaps[i] = Bitmap.createBitmap(
-                        bitmap, 0, i * heightBitmap, bitmap.getWidth(), heightBitmap);
+            recyclerView.getAdapter().onBindViewHolder(holder, i);
 
-                canvas.drawBitmap(bitmaps[i], null, new Rect(
-                        Utils.MARGIN_START, Utils.MARGIN_TOP + 40,
-                        Utils.PAGE_WIDTH - 20, Utils.PAGE_HEIGHT - 60), null);
+            TextView nameKey = holder.itemView.findViewById(R.id.nameOfKeyId);
+            TextView nameTake = holder.itemView.findViewById(R.id.nameOfUserTakedKeyId);
+            TextView dateTimeTake = holder.itemView.findViewById(R.id.dateTimeTakedKeyId);
+            TextView nameBack = holder.itemView.findViewById(R.id.nameOfUserBackedKeyId);
+            TextView dateTimeBack = holder.itemView.findViewById(R.id.dateTimeBackedKeyId);
 
-                //Número da Página
-                canvas.drawText(pag,
-                        Utils.PAGE_WIDTH - 60, Utils.PAGE_HEIGHT - 30, title);
+            //Se estiver no fim da página, cria uma nova
+            if (pos_y >= Utils.PAGE_HEIGHT-74) {
 
-                //Finalizar Página
-                filePdf.finishPage(pagePdf);
+                //Finaliza página anterior
+                pdfDocument.finishPage(newPage);
 
-            } else {
+                //Incrementa número da página
+                num_of_page++;
 
-                bitmaps[i] = Bitmap.createBitmap(
-                        bitmap, 0, i * heightBitmap, bitmap.getWidth(), heightBitmap);
+                //Cria nova página
+                pageInfo = new PdfDocument.PageInfo.Builder(
+                        Utils.PAGE_WIDTH, Utils.PAGE_HEIGHT, num_of_page).create();
+                newPage = pdfDocument.startPage(pageInfo);
 
-                PdfDocument.PageInfo infoPdf = new PdfDocument.PageInfo.Builder(
-                        widthA4, heightA4, i)
-                        .create();
+                canvas = newPage.getCanvas();
+                paint = new Paint();
+                paint.setColor(Color.BLACK);
 
-                PdfDocument.Page pagePdf = filePdf.startPage(infoPdf);
-
-                Canvas canvas = pagePdf.getCanvas();
-
-                canvas.drawBitmap(bitmaps[i], null, new Rect(
-                        20, 40,
-                        Utils.PAGE_WIDTH - 20, Utils.PAGE_HEIGHT - 60), null);
-
-                //Número da Página
-                canvas.drawText(pag, Utils.PAGE_WIDTH - 60, Utils.PAGE_HEIGHT - 30, title);
-
-                //Finalizar Página
-                filePdf.finishPage(pagePdf);
+                //Reinicinando posição Y
+                pos_y = Utils.MARGIN_TOP;
             }
+
+            //Nome da chave
+            canvas.drawText(nameKey.getText().toString(), Utils.MARGIN_START, pos_y, paint);
+            pos_y = pos_y + 16;
+
+            //Nome de quem pegou, data e hora.
+            canvas.drawText(nameTake.getText().toString() + " "
+                    + dateTimeTake.getText().toString(), Utils.MARGIN_START, pos_y, paint);
+            pos_y = pos_y + 16;
+
+            //Nome de quem devolveu, data e hora.
+            canvas.drawText(nameBack.getText().toString() + " "
+                    + dateTimeBack.getText().toString(), Utils.MARGIN_START, pos_y, paint);
+            pos_y = pos_y + 16;
+
+            //Desenhar Linha
+            canvas.drawLine(Utils.MARGIN_START, pos_y,
+                    Utils.PAGE_WIDTH-Utils.MARGIN_START, pos_y, paint);
+            pos_y = pos_y + 16;
+
+            //Desenhar número da página
+            canvas.drawText(num_of_page+"", Utils.PAGE_WIDTH - Utils.MARGIN_TOP,
+                    Utils.PAGE_HEIGHT - Utils.MARGIN_START, paint);
 
         }
 
+        //Finaliza página
+        pdfDocument.finishPage(newPage);
 
+        File file = new File(this.dir, fileName);
 
         try {
 
             file.createNewFile();
             OutputStream outputStream = new FileOutputStream(file);
-            filePdf.writeTo(outputStream);
+            pdfDocument.writeTo(outputStream);
             outputStream.close();
-            filePdf.close();
+            pdfDocument.close();
+
+            return 1;
 
         } catch (IOException e) {
 
             e.printStackTrace();
-            return -1; //Erro
+            return -1;
 
         }
 
-        return 1; //Sucesso
     }
-
 
 }

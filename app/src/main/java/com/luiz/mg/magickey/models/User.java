@@ -1,38 +1,43 @@
 package com.luiz.mg.magickey.models;
 
+/**
+ * Classe modelo para Usuários
+ */
 public class User {
 
-    private String Mat;
-    private String Name;
-    private String Dept;
+    private String mat;
+    private String name;
+    private String dept;
+
+    public User() {}
 
     public User(String mat, String name, String dept) {
-        Mat = mat;
-        Name = name;
-        Dept = dept;
+        this.mat = mat;
+        this.name = name;
+        this.dept = dept;
     }
 
     public String getMat() {
-        return Mat;
+        return mat;
     }
 
     public void setMat(String mat) {
-        Mat = mat;
+        this.mat = mat;
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public String getDept() {
-        return Dept;
+        return dept;
     }
 
     public void setDept(String dept) {
-        Dept = dept;
+        this.dept = dept;
     }
 }

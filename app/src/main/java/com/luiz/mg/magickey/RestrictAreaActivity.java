@@ -3,9 +3,9 @@ package com.luiz.mg.magickey;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,21 +20,20 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.textfield.TextInputEditText;
-import com.luiz.mg.magickey.adapters.KeyAdapter;
-import com.luiz.mg.magickey.adapters.UserAdapter;
-import com.luiz.mg.magickey.dao.KeyDAO;
-import com.luiz.mg.magickey.dao.UserDAO;
+import com.google.firebase.firestore.Query;
+import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForKey;
+import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForUser;
 import com.luiz.mg.magickey.models.Key;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.utils.DialogButtonClickWrapper;
+import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.PathUtil;
 import com.luiz.mg.magickey.utils.ReadFile;
 import com.luiz.mg.magickey.utils.Utils;
@@ -43,44 +42,56 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * Atividade de Área Restrita
+ * Nesta atividade é possível listar usuários e chaves, cadastrar usuários e chaves
+ * cadastrar email de envio de relatórios
+ */
 public class RestrictAreaActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
     private TextView titleList;
-    private RecyclerView recyclerViewOfList;
-    private ArrayList<User> listUsers;
-    private ArrayList<Key> listKeys;
-    private boolean isUsers = true;
+    private RecyclerView rViewOfListUser, rViewOfListKey;
     private boolean isLotUsers = true;
     private String dept = Utils.sector;
 
+    FirestoreRecyclerAdapterForUser adapterUser;
+    FirestoreRecyclerAdapterForKey adapterKey;
+
+    //O que fazer com o resultado da escolha de arquivo é declarado abaixo
     ActivityResultLauncher<String> mGetContent =
         registerForActivityResult(new ActivityResultContracts.GetContent(),
 
             uri -> {
 
-                String path="";
-                try {
-                    path = PathUtil.getPath(this, uri);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
+                if (uri != null) {
 
-                if (path != null && path.endsWith(".csv")) {
+                    String path = "";
 
-                    if (isLotUsers) {
-                        //Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
-                        addUsersLot(path);
-                    }
-                    else {
-                        addKeysLot(path);
+                    try {
+                        path = PathUtil.getPath(this, uri);
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
                     }
 
-                } else {
-                    Toast.makeText(this, "Arquivo Inválido! Escolha um arquivo .csv", Toast.LENGTH_LONG).show();
+                    if (path != null && path.endsWith(".csv")) {
+
+                        if (isLotUsers) {
+                            addUsersLot(path);
+                        } else {
+                            addKeysLot(path);
+                        }
+
+                    } else {
+
+                        Toast.makeText(this, "Arquivo Inválido! Escolha um arquivo .csv",
+                                Toast.LENGTH_LONG).show();
+
+                    }
                 }
 
             }
+
         );
 
     @Override
@@ -88,76 +99,36 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resctrict_area);
 
-        //Lista de Usuários
-        UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
-        listUsers =  userDAO.listUsers();
+        //Título da Lista
+        titleList = findViewById(R.id.titleListId);
 
-        //Lista de Chaves
-        KeyDAO keyDAO = new KeyDAO(MainActivity.dbHelper);
-        listKeys = keyDAO.listKeys();
-
+        //Botões
         Button btnAddUser = findViewById(R.id.btnAddUserId);
         Button btnAddKey = findViewById(R.id.btnAddKeyId);
         Button btnListUsers = findViewById(R.id.btnListUsersId);
         Button btnListKeys = findViewById(R.id.btnListKeysId);
         Button btnAddUsersLot = findViewById(R.id.btnAddUsersLotId);
         Button btnAddKeysLot = findViewById(R.id.btnAddKeysLotId);
+        Button btnAddEmails = findViewById(R.id.btnAddEmailsId);
 
-        titleList = findViewById(R.id.titleListId);
+        //Título da lista
+        titleList.setText(R.string.title_list_user);
 
-        recyclerViewOfList = findViewById(R.id.listItemId);
-        recyclerViewOfList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerViewOfList.addItemDecoration(
-                new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
+        //SetListUser
+        setViewListUser();
 
-        setListUser(listUsers);
+        //setListKey
+        setViewListKey();
 
+        //Clique dos botões
         btnAddUser.setOnClickListener(this);
         btnListUsers.setOnClickListener(this);
         btnListKeys.setOnClickListener(this);
         btnAddKey.setOnClickListener(this);
         btnAddUsersLot.setOnClickListener(this);
         btnAddKeysLot.setOnClickListener(this);
+        btnAddEmails.setOnClickListener(this);
 
-        SearchView etSearch = findViewById(R.id.editTextSearchId);
-        etSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-
-                updateSearchList(newText);
-
-                return false;
-            }
-        });
-    }
-
-    private void updateSearchList(String newText) {
-
-        if (isUsers) {
-
-            ArrayList<User> listSearch = new ArrayList<>();
-            for (User u : listUsers) {
-                if (u.getName().toLowerCase().contains(newText.toLowerCase())) {
-                    listSearch.add(u);
-                }
-            }
-            setListUser(listSearch);
-
-        } else {
-
-            ArrayList<Key> listSearch = new ArrayList<>();
-            for (Key k : listKeys) {
-                if (k.getNameKey().toLowerCase().contains(newText.toLowerCase())) {
-                    listSearch.add(k);
-                }
-            }
-            setListKey(listSearch);
-        }
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -174,12 +145,12 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 showDialogAddKey();
                 break;
             case R.id.btnListUsersId:
-                isUsers = true;
-                setListUser(listUsers);
+                titleList.setText(R.string.title_list_user);
+                showListUsers();
                 break;
             case R.id.btnListKeysId:
-                isUsers = false;
-                setListKey(listKeys);
+                titleList.setText(R.string.title_list_key);
+                showListKeys();
                 break;
             case R.id.btnAddUsersLotId:
                 isLotUsers = true;
@@ -191,24 +162,84 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
                 if (requestPermission())
                     showDialogAddKeysLot();
                 break;
+            case R.id.btnAddEmailsId:
+                showDialogAddEmails();
+                break;
         }
     }
 
-    private void setListUser(ArrayList<User> list) {
-        UserAdapter userAdapter = new UserAdapter(list);
-        recyclerViewOfList.setAdapter(userAdapter);
-        recyclerViewOfList.setHasFixedSize(true);
-        titleList.setText(R.string.title_list_user);
+    /**
+     * Método responsável por exibir a lista de usuários
+     */
+    private void showListUsers() {
+        rViewOfListKey.setVisibility(View.INVISIBLE);
+        rViewOfListUser.setVisibility(View.VISIBLE);
     }
 
-    private void setListKey(ArrayList<Key> list) {
-        KeyAdapter keyAdapter = new KeyAdapter(
-                list, null , false, getApplicationContext(), MainActivity.dbHelper);
-        recyclerViewOfList.setAdapter(keyAdapter);
-        recyclerViewOfList.setHasFixedSize(true);
-        titleList.setText(R.string.title_list_key);
+    /**
+     * Método responsável por exibir a lista de chaves
+     */
+    private void showListKeys() {
+        rViewOfListUser.setVisibility(View.INVISIBLE);
+        rViewOfListKey.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Método responsável por preencher a lista de usuários
+     */
+    private void setViewListUser() {
+
+        //Lista de Usuários
+        rViewOfListUser = findViewById(R.id.listUserId);
+        rViewOfListUser.setHasFixedSize(true);
+        rViewOfListUser.setLayoutManager(new LinearLayoutManagerWrapper(this));
+        rViewOfListUser.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL));
+
+        Query query = MainActivity.db.collection(Utils.NAME_COLLECTION_USERS)
+                .orderBy("name", Query.Direction.ASCENDING);
+
+        //FirebaseRecyclerOptions
+        FirestoreRecyclerOptions<User> optionsUsers = new FirestoreRecyclerOptions.Builder<User>()
+                .setQuery(query, User.class)
+                .build();
+
+        //FirestoreRecyclerAdapter para Usuário
+        adapterUser = new FirestoreRecyclerAdapterForUser(optionsUsers);
+
+        rViewOfListUser.setAdapter(adapterUser);
+
+    }
+
+    /**
+     * Método responsável por preencher a lista de chaves
+     */
+    private void setViewListKey() {
+
+        //Lista de Chaves
+        rViewOfListKey = findViewById(R.id.listKeyId);
+        rViewOfListKey.setHasFixedSize(true);
+        rViewOfListKey.setLayoutManager(new LinearLayoutManagerWrapper(this));
+        rViewOfListKey.addItemDecoration( new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL));
+
+        Query query = MainActivity.db.collection(Utils.NAME_COLLECTION_KEYS);
+
+        //FirebaseRecyclerOptions
+        FirestoreRecyclerOptions<Key> optionsKey = new FirestoreRecyclerOptions.Builder<Key>()
+                .setQuery(query, Key.class)
+                .build();
+
+        //FirestoreRecyclerAdapter para Chave
+        adapterKey = new FirestoreRecyclerAdapterForKey(optionsKey, null);
+
+        rViewOfListKey.setAdapter(adapterKey);
+
+    }
+
+    /**
+     * Método responsável por mostrar a caixa de diálogo para cadastar usuário
+     */
     @SuppressLint("InflateParams")
     private void showDialogAddUser(){
 
@@ -259,12 +290,15 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
             @Override
             protected boolean onClicked() {
-                return addNewUser(itMatUser, itNameUser, spinner);//Retornando true fecha o dialog
+                return addNewUser(itMatUser, itNameUser, dialog);//Retornando true fecha o dialog
             }
         });
 
     }
 
+    /**
+     * Método responsável por mostrar a caixa de diálogo para cadastar chave
+     */
     @SuppressLint("InflateParams")
     private void showDialogAddKey(){
 
@@ -315,13 +349,161 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
         theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
             @Override
             protected boolean onClicked() {
-                return addNewKey(itNameKey, spinner);//Retornando true fecha o dialog
+                return addNewKey(itNameKey, dialog);//Retornando true fecha o dialog
             }
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private boolean addNewUser(TextInputEditText mat, TextInputEditText name, Spinner spinner) {
+    /**
+     * Método responsável por mostrar a caixa de diálogo para cadastar os endereços de email para
+     * onde serão enviados os relatórios
+     */
+    @SuppressLint("InflateParams")
+    private void showDialogAddEmails() {
+
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View inflate;
+
+        //Definição do Layout
+        inflate = inflater.inflate(R.layout.layout_add_email, null);
+
+        //Definição dos Campos
+        final TextInputEditText itEmails = inflate.findViewById(R.id.emailsId);
+
+        SharedPreferences preferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
+
+        itEmails.setText(preferences.getString("email",""));
+
+        //SetView no dialog
+        builder.setView(inflate);
+
+        //Botão Cancelar
+        builder.setNegativeButton(Utils.CANCEL, (dialogInterface, i) -> {
+            //Cancelar
+        });
+
+        //Não Cancelável
+        builder.setCancelable(false);
+
+        //Criar
+        dialog = builder.create();
+
+        //Set Botão cadastrar (Não colocar nada)
+        dialog.setButton(
+                DialogInterface.BUTTON_POSITIVE, Utils.CAD, (dialog1, which) -> {});
+
+        //Mostrar Dialog
+        dialog.show();
+
+        //Customizando botão cadastrar
+        Button theButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
+            @Override
+            protected boolean onClicked() {
+                return MainActivity.addEmails(itEmails);
+            }
+        });
+
+    }
+
+    /**
+     * Método responsável por veridificar se o usuário já está cadastrado banco
+     * @param user Objeto User
+     * @param dialog AlertDialog
+     */
+    private void consultUser (User user, AlertDialog dialog) {
+
+        MainActivity.db.collection(Utils.NAME_COLLECTION_USERS)
+            .document(user.getMat())
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+
+                //Se o documento existir, o usuário já está cadastrado
+                if (documentSnapshot.exists()) {
+
+                    Toast.makeText(this, R.string.user_exists, Toast.LENGTH_SHORT)
+                            .show();
+
+                //Se não, Adicionar no banco de dados
+                } else {
+
+                    addUserInDatabase(user, dialog);
+
+                }
+
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Falha!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            });
+
+    }
+
+    /**
+     * Método responsável por consultar uma chave no banco de dados
+     * @param key Objeto Chave
+     * @param dialog AlertDialog
+     */
+    private void consultKey (Key key, AlertDialog dialog) {
+
+        MainActivity.db.collection("keys")
+            .document(key.getName())
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+
+                //Se a chave existir, ela stá cadastrada
+                if (documentSnapshot.exists()) {
+
+                    Toast.makeText(this, R.string.key_exists, Toast.LENGTH_SHORT)
+                            .show();
+
+                //Se não, Adicionar chave no banco de dados
+                } else {
+
+                    addKeyInDatabase(key, dialog);
+
+                }
+
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Falha!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            });
+    }
+
+    private void addKeyInDatabase(Key key, AlertDialog dialog) {
+
+        MainActivity.db.collection(Utils.NAME_COLLECTION_KEYS).document(key.getName()).set(key)
+            .addOnSuccessListener(documentReference -> {
+
+                if (dialog != null)
+                    dialog.dismiss();
+
+                Toast.makeText(this, R.string.add_key_succes, Toast.LENGTH_SHORT)
+                        .show();
+
+            }).addOnFailureListener(e -> Toast.makeText(this, "Falha!",
+                        Toast.LENGTH_SHORT).show());
+
+    }
+
+    private void addUserInDatabase(User user, AlertDialog dialog) {
+
+        MainActivity.db.collection(Utils.NAME_COLLECTION_USERS)
+            .document(user.getMat())
+            .set(user)
+            .addOnSuccessListener(documentReference -> {
+
+                if (dialog != null)
+                    dialog.dismiss();
+
+                Toast.makeText(this, Utils.ADD_USER_SUCCESS, Toast.LENGTH_SHORT).show();
+
+            }).addOnFailureListener(e -> Toast.makeText(this, Utils.ADD_USER_FAIL,
+                    Toast.LENGTH_SHORT).show());
+    }
+
+    private boolean addNewUser(TextInputEditText mat, TextInputEditText name, AlertDialog dialog) {
 
         if (Objects.requireNonNull(mat.getText()).toString().equals("")) {
 
@@ -337,57 +519,21 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
             Toast.makeText(getApplicationContext(),
                     R.string.dept_require, Toast.LENGTH_LONG).show();
+
             return false;
 
         } else { //Todos os campos foram preenchidos
 
-            UserDAO userDAO  = new UserDAO(MainActivity.dbHelper);
-            User newUser = new User(
-                    mat.getText().toString(),
-                    name.getText().toString(),
-                    dept);
+            User newUser = new User(mat.getText().toString(), name.getText().toString(), dept);
 
-            int statusId = userDAO.addUser(newUser);
+            consultUser(newUser, dialog);
 
-            if ( statusId == 1) { //Usuário adicionado com sucesso
+            return false;
 
-                Log.d("appkey", Utils.ADD_USER_SUCCESS);
-
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_user_succes, Toast.LENGTH_LONG).show();
-
-                listUsers.add(newUser);
-                Objects.requireNonNull(recyclerViewOfList.getAdapter()).notifyDataSetChanged();
-
-                mat.setText("");
-                name.setText("");
-                spinner.setSelection(0);
-
-                return true;
-
-            } else if (statusId == -1 ) { //Erro ao adicionar usuário
-
-                Log.d("appkey", Utils.ADD_USER_FAIL);
-
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_user_fail, Toast.LENGTH_LONG).show();
-
-                return false;
-
-            } else { //Usuário já cadastrado
-
-                Log.d("appkey", Utils.ADD_USER_EXISTS);
-
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_user_erro, Toast.LENGTH_LONG).show();
-
-                return false;
-            }
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private boolean addNewKey(TextInputEditText nameKey, Spinner spinner) {
+    private boolean addNewKey(TextInputEditText nameKey, AlertDialog dialog) {
 
         if (Objects.requireNonNull(nameKey.getText()).toString().equals("")) {
 
@@ -404,47 +550,12 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         } else {
 
-            //Todos os campos foram preenchidos
-            KeyDAO keyDAO = new KeyDAO(MainActivity.dbHelper);
+            Key key = new Key(
+                    nameKey.getText().toString(), dept, false, "", "");
+            consultKey(key, dialog);
 
-            Key newKey = new Key(
-                    nameKey.getText().toString(),
-                    dept,
-                    getResources().getString(R.string.no)
-            );
+            return false;
 
-            int statusId = keyDAO.addKey(newKey);
-
-            if ( statusId == 1) { //Chave adicionada com sucesso
-
-                Log.d("appkey", Utils.ADD_KEY_SUCCESS);
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_key_succes, Toast.LENGTH_LONG).show();
-
-               listKeys.add(newKey);
-               Objects.requireNonNull(recyclerViewOfList.getAdapter()).notifyDataSetChanged();
-
-                nameKey.setText("");
-                spinner.setSelection(0);
-
-                return true;
-
-            } else if (statusId == -1 ) { //Erro ao adicionar chave
-
-                Log.d("appkey", Utils.ADD_KEY_FAIL);
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_key_fail, Toast.LENGTH_LONG).show();
-
-                return false;
-
-            } else { //chave já cadastrado
-
-                Log.d("appkey", Utils.ADD_KEY_EXISTS);
-                Toast.makeText(getApplicationContext(),
-                        R.string.add_key_erro, Toast.LENGTH_LONG).show();
-
-                return false;
-            }
         }
     }
 
@@ -492,16 +603,11 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         if (!listNewUsers.isEmpty()) {
 
-            UserDAO userDAO = new UserDAO(MainActivity.dbHelper);
-            int numOfNewRows = userDAO.addUsersOfList(listNewUsers);
+            for (User u : listNewUsers) {
 
-            if (numOfNewRows > 0) {
-                listUsers.addAll(listNewUsers);
-                setListUser(listUsers);
+                addUserInDatabase(u, null);
+
             }
-
-            Toast.makeText(this, numOfNewRows + " usuário(s) adicionado(s)!",
-                    Toast.LENGTH_SHORT).show();
 
         } else {
 
@@ -516,16 +622,9 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
 
         if (!listNewKeys.isEmpty()) {
 
-            KeyDAO keyDAO = new KeyDAO(MainActivity.dbHelper);
-            int numOfNewRows = keyDAO.addKeysOfList(listNewKeys);
-
-            if (numOfNewRows > 0) {
-                listKeys.addAll(listNewKeys);
-                setListKey(listKeys);
+            for (Key k : listNewKeys) {
+                addKeyInDatabase(k, null);
             }
-
-            Toast.makeText(this, numOfNewRows + " chave(s) adicionada(s)!",
-                    Toast.LENGTH_SHORT).show();
 
         } else {
 
@@ -624,5 +723,19 @@ public class RestrictAreaActivity extends AppCompatActivity implements View.OnCl
             finish();
 
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapterUser.startListening();
+        adapterKey.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapterUser.stopListening();
+        adapterKey.stopListening();
     }
 }

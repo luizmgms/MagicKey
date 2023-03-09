@@ -1,13 +1,15 @@
 package com.luiz.mg.magickey;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,135 +26,146 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.luiz.mg.magickey.adapters.EntryAdapter;
-import com.luiz.mg.magickey.dao.EntryDAO;
-import com.luiz.mg.magickey.dao.UserDAO;
-import com.luiz.mg.magickey.db.FeedReaderDbHelper;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.luiz.mg.magickey.adapters.FirestoreRecyclerAdapterForEntry;
 import com.luiz.mg.magickey.fragments.DatePickerFragment;
 import com.luiz.mg.magickey.models.Entry;
 import com.luiz.mg.magickey.models.User;
 import com.luiz.mg.magickey.reports.MakeFile;
+import com.luiz.mg.magickey.utils.DialogButtonClickWrapper;
+import com.luiz.mg.magickey.utils.LinearLayoutManagerWrapper;
 import com.luiz.mg.magickey.utils.Utils;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
-
+/**
+ * Atividade principal, o app se inicia por aqui.
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
-    public static FeedReaderDbHelper dbHelper;
+    @SuppressLint("StaticFieldLeak")
+    public static FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     private String userId = "";
     private TextView textViewUserId;
 
     @SuppressWarnings("rawtypes")
     public static BottomSheetBehavior bottomSheetBehavior;
-    ArrayList<Entry> listEntry = new ArrayList<>();
-    EntryDAO entryDAO;
     RecyclerView recyclerListOfEntry;
     TextView tvDate;
 
-    String date, date1;
-    String sFilter = "Dia";
+    ConstraintLayout progressBar;
+
+    String dateTime, dateTime1;
+    String sFilter = Utils.DAY;
 
     Spinner spinnerFilter;
 
-    @SuppressLint("SimpleDateFormat")
+    FirestoreRecyclerAdapterForEntry adapterEntry;
+
+    public static SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        //Preferences
+        preferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
 
-        //KeyDAO keyDAO = new KeyDAO(dbHelper);
-        //keyDAO.deleteAllKeys();
-        //keyDAO.addKeysOfList(Utils.getListAllKeys());
+        //Autenticação no Firebase anonimamente
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(Utils.APP_KEY, "signInAnonymously:success");
+                        //FirebaseUser user = mAuth.getCurrentUser();
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.d(Utils.APP_KEY, "signInAnonymously:failure", task.getException());
 
-        //UserDAO userDAO = new UserDAO(getApplicationContext());
-        //userDAO.addUsersOfList(ReadFile.getListUsersOfFile());
-        //userDAO.deleteAllUsers();
+                    }
+                });
 
-        //entryDAO = new EntryDAO(dbHelper);
-        //entryDAO.deleteAllEntry();
+        //Barra de progresso
+        progressBar = findViewById(R.id.progressBarId);
 
         //Botão de Área Restrita
         FloatingActionButton floatBtnLock = findViewById(R.id.lockButtonId);
         floatBtnLock.setOnClickListener(view -> enterAreaLock());
 
-        //Layout do BottomSheet
+        //Layout do BottomSheet (Entradas)
          ConstraintLayout layoutBottomSheet = findViewById(R.id.layoutBottomSheetId);
 
         //Comportamento do BottomSheet
         bottomSheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
 
-        //Pegando data do dia
-        Date dateTimeStamp = new Date();
-        date = new SimpleDateFormat("dd/MM/yyyy").format(dateTimeStamp);
-        date1 = new SimpleDateFormat("dd-MM-yyyy").format(dateTimeStamp);
+        //Pegando data e hora do dia
+        DateTimeFormatter dtf1 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        DateTimeFormatter dtf2 = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
+        dateTime = dtf1.format(LocalDateTime.now());
+        dateTime1 = dtf2.format(LocalDateTime.now());
 
-        //Setando TextView Date com a data do dia.
+        //Setando TextViewDate com a data do dia.
         tvDate = findViewById(R.id.dateOfFilterId);
-        tvDate.setText(date);
+        String[] dateTimeSplit = dateTime.split(" ");
+        tvDate.setText(dateTimeSplit[0]);
         tvDate.setOnClickListener(view -> showDatePickerDialog(tvDate));
 
-        //Callback da mudança de Estado
+        //Callback da mudança de estado bo bottom sheet
         bottomSheetBehavior.addBottomSheetCallback(callbackSheetBehavior());
 
         //RecyclerView de Entry
-        recyclerListOfEntry = findViewById(R.id.listEntryId);
-        recyclerListOfEntry.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerListOfEntry.addItemDecoration(
-                new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
-        recyclerListOfEntry.setHasFixedSize(true);
+        fillListEntry(sFilter);
 
         //Botão Lista de Entradas
         FloatingActionButton floatBtnListOfEntries = findViewById(R.id.btnListAllEntriesId);
-
-        //Inicializando DAO Entry
-        entryDAO = new EntryDAO(dbHelper);
-
-        //Setando lista das Entry do dia no ReclycerView
-        filter(date);
-        Log.d("appkey", "Filtro: "+sFilter+", "+date);
 
         //Clique do botão
         floatBtnListOfEntries.setOnClickListener(view ->
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED));
 
-        //Floating Botão Salvar Relatório
+        //Botão Salvar e Enviar Relatório
         FloatingActionButton fabSaveReport = findViewById(R.id.btnShareReportId);
         fabSaveReport.setOnClickListener(view -> {
-            if (listEntry.isEmpty()) {
-                showAlert(Utils.CREATE_FAIL, Utils.REPORT_EMPTY);
-            }else {
-                saveReport();
+            if (Objects.requireNonNull(recyclerListOfEntry.getAdapter()).getItemCount() == 0) {
+                showAlert(Utils.CREATE_FAIL, Utils.REPORT_EMPTY, false);
+            } else {
+                saveAndSendReport(recyclerListOfEntry);
             }
         });
 
+        //Spinner do filtro
         spinnerFilter = findViewById(R.id.spinnerFilterId);
-        // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.filter, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
         spinnerFilter.setAdapter(adapter);
+
         //Ação ao selecionar um item
         spinnerFilter.setOnItemSelectedListener(this);
 
-        //Matrícula
+        //Botão filtar
+        Button btnFiltar = findViewById(R.id.btnFilterEntryId);
+        btnFiltar.setOnClickListener(view -> fillListEntry(sFilter));
+
+        //Matrícula ou CPF
         textViewUserId = findViewById(R.id.inputTextId);
 
-        Button btn0= findViewById(R.id.button0Id);
+        Button btn0 = findViewById(R.id.button0Id);
         btn0.setOnClickListener(this);
         Button btn1 = findViewById(R.id.button1Id);
         btn1.setOnClickListener(this);
@@ -184,30 +197,124 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * Método para login do usuário
+     * Ele pesquisa se o usuário existe no banco de dados.
+     * Se existir, ele chama o método openTakeOrBackKeysActivity(),
+     * Se não, exibe uma mensagem de erro.
+     */
     private void logIn(){
+
         if (userId.equals("")) {
 
-            showAlert("Campo Vazio!", "Entre com o Nº de sua Matrícula ou CPF");
+            showAlert("Campo Vazio!", "Entre com o Nº de sua Matrícula ou CPF",
+                    false);
 
         } else {
 
-            UserDAO userDAO = new UserDAO(dbHelper);
-            User user = userDAO.consultUser(userId);
+            //Exibir barra de progresso
+            progressBar.setVisibility(View.VISIBLE);
 
-            if ( user == null) {
+            //Consultar Usuário
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
 
-                showAlert("Erro de Login!", "Usuário não encontrado!");
+                    userId = "";
+                    textViewUserId.setText(userId);
+                    progressBar.setVisibility(View.INVISIBLE);
 
-            } else {
+                    //Se o usuário existe
+                    if (documentSnapshot.exists()) {
 
-                userId = "";
-                textViewUserId.setText(userId);
-                openTakeOrBackKeysActivity(user);
+                        //Documento para Objeto User
+                        User user = documentSnapshot.toObject(User.class);
 
-            }
+                        //Se user for diferente de null
+                        if (user != null) {
+
+                            //Abrir Activity
+                            openTakeOrBackKeysActivity(user);
+
+                        //Se user igual a null
+                        } else {
+                            //Erro!
+                            showAlert("Erro de Login!", "Usuário não encontrado!",
+                                    false);
+                        }
+
+                    //Se usuário não existe
+                    } else {
+
+                        //Erro!
+                        showAlert("Erro de Login!", "Usuário não encontrado!",
+                                false);
+
+                    }
+                }).addOnFailureListener(e -> {
+                    Log.d(Utils.APP_KEY, "Falha a consultar FireBase!");
+                    e.printStackTrace();
+                    Toast.makeText(this, "Falha", Toast.LENGTH_SHORT).show();
+                });
+
         }
     }
 
+    /**
+     * Método responsável por preencher o RecyclerView das Entry de acordo com filtro aplicado
+     * @param filter String com o filtro a ser aplicado
+     */
+    private void fillListEntry(String filter) {
+
+        String[] dateTime = tvDate.getText().toString().split(" ");
+        String[] date = dateTime[0].split("/");
+        String dia = date[0];
+        String mes = date[1];
+        String ano = date[2];
+
+        recyclerListOfEntry = null;
+        recyclerListOfEntry = findViewById(R.id.listEntryId);
+        recyclerListOfEntry.setLayoutManager(new LinearLayoutManagerWrapper(this));
+        recyclerListOfEntry.addItemDecoration(
+                new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
+        recyclerListOfEntry.setHasFixedSize(true);
+
+        Query query;
+
+        if (filter.equals(Utils.DAY)) {
+            query = db.collection(Utils.NAME_COLLECTION_ENTRY)
+                    .whereEqualTo(Utils.LOWER_DAY, dia)
+                    .whereEqualTo(Utils.LOWER_MONTH, mes)
+                    .whereEqualTo(Utils.LOWER_YEAR, ano)
+                    .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
+
+        } else if (filter.equals(Utils.MONTH)) {
+            query = db.collection(Utils.NAME_COLLECTION_ENTRY)
+                    .whereEqualTo(Utils.LOWER_MONTH, mes)
+                    .whereEqualTo(Utils.LOWER_YEAR, ano)
+                    .orderBy("dateTimeTakeKey", Query.Direction.ASCENDING);
+        } else {
+            query = db.collection(Utils.NAME_COLLECTION_ENTRY)
+                    .whereEqualTo(Utils.LOWER_YEAR, ano)
+                    .orderBy("dateTimeTakeKey", Query.Direction.DESCENDING);
+        }
+
+        //FirebaseRecyclerOptions
+        FirestoreRecyclerOptions<Entry> optionsEntry = new FirestoreRecyclerOptions.Builder<Entry>()
+                .setQuery(query, Entry.class)
+                .build();
+
+        //FirestoreRecyclerAdapter para Entry
+        adapterEntry = null;
+        adapterEntry = new FirestoreRecyclerAdapterForEntry(optionsEntry, null);
+
+        recyclerListOfEntry.setAdapter(adapterEntry);
+        adapterEntry.startListening();
+    }
+
+    /**
+     * Método responsável por abrir a Activity TakeOrBackKeysActivity
+     * @param user Objeto Usuário que fez o login
+     */
     private void openTakeOrBackKeysActivity(User user) {
         Intent i = new Intent(MainActivity.this, TakeOrBackKeyActivity.class);
         i.putExtra(Utils.NAME_USER, user.getName());
@@ -216,6 +323,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(i);
     }
 
+    /**
+     * Método responsável por abrir a Activity RestrictAreaActivity
+     */
     private void enterAreaLock(){
 
         Intent intent = new Intent(MainActivity.this, RestrictAreaActivity.class);
@@ -223,66 +333,108 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void saveReport () {
+    /**
+     * Método resonsável por gerar e salvar o relátorio e enviá-lo por e-mail
+     * Ele verifica se existe endereços de e-mails cadastrados para onde serão enviados os relatórios
+     * Verifica também se existe permissão de gravação no dispositivo
+     * @param recyclerView RecyclerView com a lista das Entry
+     */
+    private void saveAndSendReport (RecyclerView recyclerView) {
 
-        // Verifica  o estado da permissão de WRITE_EXTERNAL_STORAGE
-        int permissionCheck = ContextCompat
-                .checkSelfPermission(
-                        this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        //Get Preferences
+        SharedPreferences sharedPreferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
 
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            // Se for diferente de PERMISSION_GRANTED, então vamos exibir a tela padrão
-            ActivityCompat
-                    .requestPermissions(
-                            this, new String[]{
-                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            1);
+        //Pegar email
+        String emailToSendReport = sharedPreferences.getString("email", "");
+
+        //Se tiver vazio, pede para cadastrar um email
+        if (emailToSendReport.equals("")) {
+
+            showAlert("EMAIL NÃO CADASTRADO!",
+                    "Não existe nenhum email cadastrado para se enviar os relatórios. " +
+                            "Se deseja cadastrar emails, toque em OK.", true);
+
         } else {
 
-            //Se não, vamos criar a imagem
-            Bitmap bitmap = Utils.screenShot(recyclerListOfEntry);
+            // Verifica  o estado da permissão de WRITE_EXTERNAL_STORAGE
+            int permissionCheck = ContextCompat
+                    .checkSelfPermission(
+                            this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-            File dir = new File(
-                    Environment.getExternalStorageDirectory() + Utils.DIRECTORY_REPORTS);
-
-            MakeFile makeFile = new MakeFile(dir);
-
-            String[] datesplit = tvDate.getText().toString().split("/");
-            String referencia;
-            String date_ref_for_file = datesplit[0]+"-"+datesplit[1]+"-"+datesplit[2];
-
-            if (sFilter.equals("Dia")){
-                referencia = tvDate.getText().toString();
-
-            } else if (sFilter.equals("Mês")) {
-                referencia = datesplit[1]+"/"+datesplit[2];
-            } else {
-                referencia = datesplit[2];
-            }
-
-            int status = makeFile.savePdf(
-                    bitmap, "Relatório-"+sFilter+"-"+date_ref_for_file,
-                    referencia);
-
-            if (status == 1) {
-
-                Toast.makeText(
-                        getApplicationContext(), Utils.SAVE_SUCCESS, Toast.LENGTH_SHORT).show();
-
-                //Enviar e-mail
-                sendEmail(referencia, dir,
-                        "/Relatório-"+sFilter+"-"+date_ref_for_file+".pdf");
-
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                // Se for diferente de PERMISSION_GRANTED, então vamos exibir a tela padrão
+                ActivityCompat
+                        .requestPermissions(
+                                this, new String[]{
+                                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                1);
             } else {
 
-                showAlert(Utils.CREATE_FAIL, Utils.SAVE_FAIL);
-            }
+                //Diretório de salvamento dos relatórios
+                File dir = new File(
+                        Environment.getExternalStorageDirectory() +
+                                Utils.DIRECTORY_REPORTS);
 
+                MakeFile makeFile = new MakeFile(dir);
+
+                String[] dateSplit = tvDate.getText().toString().split("/");
+                String ref;
+                String date_ref_for_file;
+
+                if (sFilter.equals(Utils.DAY)) {
+
+                    ref = tvDate.getText().toString();
+                    date_ref_for_file = dateSplit[0] + "-" + dateSplit[1] + "-" + dateSplit[2];
+
+                } else if (sFilter.equals(Utils.MONTH)) {
+
+                    ref = dateSplit[1] + "/" + dateSplit[2];
+                    date_ref_for_file = dateSplit[1] + "-" + dateSplit[2];
+
+                } else {
+
+                    ref = dateSplit[2];
+                    date_ref_for_file = dateSplit[2];
+
+                }
+
+                //Criar o arquivo PDF
+                int status = makeFile.createPdf(recyclerView,
+                        "Relatório-" + sFilter + "-" + date_ref_for_file + ".pdf", ref);
+
+                //Se foi criado com sucesso, abrir Intent de envio de e-mail
+                if (status == 1) {
+
+                    Toast.makeText(
+                            getApplicationContext(), Utils.SAVE_SUCCESS, Toast.LENGTH_SHORT).show();
+
+                    //Enviar e-mail
+                    sendEmail(ref, dir, "/Relatório-" + sFilter + "-" + date_ref_for_file +
+                            ".pdf");
+
+                } else {
+
+                    //Erro ao criar o arquivo
+                    showAlert(Utils.CREATE_FAIL, Utils.SAVE_FAIL, false);
+                }
+
+            }
         }
     }
 
-    private void sendEmail(String referencia, File dir, String fileName) {
-        String[] address = {Utils.ADDRESS_EMAIL_TO_SEND_REPORTS};
+    /**
+     * Método responsável pelo envio do e-mail com o relatório em anexo
+     * @param ref referência do relatório gerado
+     * @param dir diretório onde o relatório foi salvo
+     * @param fileName nome do arquivo
+     */
+    private void sendEmail(String ref, File dir, String fileName) {
+
+        SharedPreferences preferences = getSharedPreferences(Utils.APP_KEY, MODE_PRIVATE);
+
+        String emails = preferences.getString("email", "");
+
+        String[] address = emails.split("\n");
 
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:"));
@@ -290,18 +442,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         intent.putExtra(
                 Intent.EXTRA_SUBJECT,
-                "Relatório Movimentações de Chaves-"+ referencia);
+                "Relatório de Movimentações de Chaves-"+ ref);
 
         intent.putExtra(Intent.EXTRA_TEXT,
                 "Segue em anexo relatório com movimentações de chaves.\nReferência: "
-                        + referencia+"\n\nEnviado do App MagicKey");
+                        + ref+"\n\nEnviado do App MagicKey");
 
         intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+dir+fileName));
 
         startActivity(intent);
     }
 
-    private void showAlert(String title, String msg) {
+    private void showAlert(String title, String msg, boolean isEmail) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
@@ -310,6 +462,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Add the buttons
         builder.setPositiveButton(R.string.ok, (dialog, id) -> {
             // User clicked OK button
+            if (isEmail) {
+                showDialogAddEmail();
+            }
         });
         // Create the AlertDialog
         AlertDialog dialog = builder.create();
@@ -317,6 +472,92 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @SuppressLint("InflateParams")
+    private void showDialogAddEmail(){
+
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View inflate;
+
+        //Definição do Layout
+        inflate = inflater.inflate(R.layout.layout_add_email, null);
+
+        //Definição dos Campos
+        final TextInputEditText itEmail = inflate.findViewById(R.id.emailsId);
+
+        //SetView no dialog
+        builder.setView(inflate);
+
+        //Botão Cancelar
+        builder.setNegativeButton(Utils.CANCEL, (dialogInterface, i) -> {
+            //Cancelar
+        });
+
+        //Não Cancelável
+        builder.setCancelable(false);
+
+        //Criar
+        dialog = builder.create();
+
+        //Set Botão cadastrar (Não colocar nada)
+        dialog.setButton(
+                DialogInterface.BUTTON_POSITIVE, Utils.CAD, (dialog1, which) -> {});
+
+        //Mostrar Dialog
+        dialog.show();
+
+        //Customizando botão cadastrar
+        Button theButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        theButton.setOnClickListener(new DialogButtonClickWrapper(dialog) {
+            @Override
+            protected boolean onClicked() {
+
+                return addEmails(itEmail);
+
+            }
+        });
+    }
+
+    public static boolean addEmails(TextInputEditText itEmail) {
+
+        String strEmails = Objects.requireNonNull(itEmail.getText()).toString();
+
+        if (!strEmails.contains("\n"))
+            strEmails = strEmails+"\n";
+
+        String[] aOfEmails = strEmails.split("\n");
+
+        if (aOfEmails.length == 0) {
+
+            itEmail.setError("Email inválido!");
+            return false;
+
+        } else {
+
+            for (String e: aOfEmails) {
+                if (!e.contains("@")) {
+                    itEmail.setError("Algum email inválido!");
+                    return false;
+                }
+            }
+
+            //Adicionar as preferences
+            boolean success = preferences.edit().putString(
+                    "email", itEmail.getText().toString()).commit();
+
+            if (success) {
+                Toast.makeText(itEmail.getContext(), "Email(s) cadastrado(s) com sucesso!",
+                        Toast.LENGTH_SHORT).show();
+                return true;
+            } else {
+                Toast.makeText(itEmail.getContext(), "Erro ao cadastradar!",
+                        Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+    }
 
 
     private BottomSheetBehavior.BottomSheetCallback callbackSheetBehavior() {
@@ -324,15 +565,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @SuppressLint("SimpleDateFormat")
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    filter(tvDate.getText().toString());
-                } else if (newState == BottomSheetBehavior.STATE_HIDDEN){
-                    sFilter = Utils.DAY;
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+
                     spinnerFilter.setSelection(0);
-                    Date dateTimeStamp = new Date();
-                    date = new SimpleDateFormat("dd/MM/yyyy").format(dateTimeStamp);
-                    tvDate.setText(date);
-                    filter(date);
+                    sFilter = Utils.DAY;
+                    DateTimeFormatter dT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                    String dt = dT.format(LocalDateTime.now());
+                    String[] dateTimeSplit = dt.split(" ");
+                    tvDate.setText(dateTimeSplit[0]);
+                    fillListEntry(sFilter);
+
                 }
             }
 
@@ -344,44 +586,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void showDatePickerDialog(TextView v) {
-        DialogFragment newFragment = new DatePickerFragment(v, MainActivity.this);
+        DialogFragment newFragment = new DatePickerFragment(v);
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
-
-    public void filter(String date) {
-        Log.d("appkey", "Chamou Filter: "+ sFilter +": "+date);
-        if (sFilter.equals(Utils.DAY)){
-            setListEntryForDay(date);
-        } else if (sFilter.equals(Utils.MONTH)) {
-            setListEntryForMonth(date);
-        } else {
-            setListEntryForYear(date);
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void setListEntryForDay(String date) {
-        listEntry = entryDAO.listEntriesForDateTake(date);
-        EntryAdapter entryAdapter = new EntryAdapter(listEntry);
-        recyclerListOfEntry.setAdapter(entryAdapter);
-        entryAdapter.notifyDataSetChanged();
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void setListEntryForMonth(String date) {
-        listEntry = entryDAO.listEntriesForMonthTake(date);
-        EntryAdapter entryAdapter = new EntryAdapter(listEntry);
-        recyclerListOfEntry.setAdapter(entryAdapter);
-        entryAdapter.notifyDataSetChanged();
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void setListEntryForYear(String date) {
-            listEntry = entryDAO.listEntriesForYearTake(date);
-            EntryAdapter entryAdapter = new EntryAdapter(listEntry);
-            recyclerListOfEntry.setAdapter(entryAdapter);
-            entryAdapter.notifyDataSetChanged();
-        }
 
     @Override
     public void onBackPressed() {
@@ -395,12 +602,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         sFilter = adapterView.getItemAtPosition(i).toString();
-        filter(tvDate.getText().toString());
+        Log.d(Utils.APP_KEY, "Filtro: " + sFilter);
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-        sFilter = "Dia";
+        sFilter = Utils.DAY;
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -462,12 +669,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
 
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapterEntry.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapterEntry.stopListening();
     }
 
     @Override
     protected void onDestroy() {
-        dbHelper.close();
         super.onDestroy();
     }
 }

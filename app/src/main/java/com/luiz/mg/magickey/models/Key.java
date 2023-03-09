@@ -1,37 +1,64 @@
 package com.luiz.mg.magickey.models;
 
+
+/**
+ * Classe modelo para Chaves
+ */
 public class Key {
-    private String nameKey;
-    private String deptKey;
-    private String borrowedKey;
 
-    public Key(String name, String dept, String borrowed) {
-        this.nameKey = name;
-        this.deptKey = dept;
-        this.borrowedKey = borrowed;
+    private String name;
+    private String dept;
+    private boolean borr;
+    private String matBorr;
+    private String nameBorr;
+
+    public Key() {}
+
+    public Key(String name, String dept, boolean borrowed, String matBorr, String nameBorr) {
+        this.name = name;
+        this.dept = dept;
+        this.borr = borrowed;
+        this.matBorr = matBorr;
+        this.nameBorr = nameBorr;
     }
 
-    public String getNameKey() {
-        return nameKey;
+    public String getName() {
+        return name;
     }
 
-    public void setNameKey(String name) {
-        nameKey = name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDeptKey() {
-        return deptKey;
+    public String getDept() {
+        return dept;
     }
 
-    public void setDeptKey(String dept) {
-        deptKey = dept;
+    public void setDept(String dept) {
+        this.dept = dept;
     }
 
-    public String getBorrowedKey() {
-        return borrowedKey;
+    public boolean getBorr() {
+        return borr;
     }
 
-    public void setBorrowedKey(String borrowed) {
-        borrowedKey = borrowed;
+    public void setBorr(boolean borrowed) {
+        this.borr = borrowed;
+    }
+
+    public String getMatBorr() {
+        return matBorr;
+    }
+
+    public void setMatBorr(String matBorr) {
+        this.matBorr = matBorr;
+    }
+
+    public String getNameBorr() {
+        return nameBorr;
+    }
+
+    public void setNameBorr(String nameBorr) {
+        this.nameBorr = nameBorr;
     }
 }

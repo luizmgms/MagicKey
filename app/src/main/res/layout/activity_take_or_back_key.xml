@@ -16,8 +16,11 @@
     <!-- include main content -->
     <include layout="@layout/content_yours_keys" />
 
-    <!--include bottonsheet -->
+    <!-- include bottonSheet -->
     <include layout="@layout/bottom_sheet_other_keys" />
+
+    <!-- include list_search -->
+    <include layout="@layout/list_search" />
 
 
 

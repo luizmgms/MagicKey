@@ -13,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MagicKey">
         <activity
+            android:windowSoftInputMode="adjustNothing"
             android:name=".TakeOrBackKeyActivity"
             android:exported="false" />
         <activity
